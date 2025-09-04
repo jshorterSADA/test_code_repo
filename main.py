@@ -34,17 +34,19 @@ def _run_agent_process():
             # Try to convert the current value to an integer
             try:
                 if current_value is not None:
-                    parsed_value = int(current_value)
+                    # Explicitly cast to str before int() for defensive programming,
+                    # though os.getenv() usually returns str or None.
+                    parsed_value = int(str(current_value)) 
                     # If successful, ensure it's set as a string in os.environ
                     os.environ[var_name] = str(parsed_value)
                 else:
                     # If the variable is not set, use the default integer value
                     os.environ[var_name] = str(default_int_value)
-            except ValueError:
-                # If current_value is not convertible to int (e.g., "abc")
+            except (ValueError, TypeError) as e: # Catch TypeError too, for broader robustness
+                # If current_value is not convertible to int (e.g., "abc") or wrong type
                 logger.warning(
                     f"Environment variable '{var_name}' has an invalid integer value "
-                    f"'{current_value}'. Using default value '{default_int_value}'."
+                    f"'{current_value}' (Error: {e}). Using default value '{default_int_value}'."
                 )
                 os.environ[var_name] = str(default_int_value)
 
