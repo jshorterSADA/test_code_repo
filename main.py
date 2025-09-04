@@ -36,7 +36,8 @@ def _run_agent_process():
                 if current_value is not None:
                     # Explicitly cast to str before int() for defensive programming,
                     # though os.getenv() usually returns str or None.
-                    parsed_value = int(str(current_value)) 
+                    # .strip() is added for robustness against leading/trailing whitespace
+                    parsed_value = int(str(current_value).strip()) 
                     # If successful, ensure it's set as a string in os.environ
                     os.environ[var_name] = str(parsed_value)
                 else:
