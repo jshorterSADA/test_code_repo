@@ -10,15 +10,14 @@ def add_two_numbers(num1, num2, corrID=None):
     corr_id_prefix = f'{ccorrelation_ID} - ' if correlation_ID  else ''
     logging.info(f'{corr_id_prefix}Function `add_two_numbers` called with num1={num1}, num2={num2}.')
 
-    try:
         # Attempt to convert inputs to integers.
         logging.info(f'{corr_id_prefix}Attempting to convert inputs to integers.')
         num1 = int(num1)
         num2 = int(num2)
-    except ValueError as e:
+
         # Log the specific conversion failure and re-raise with a custom message.
         logging.error(f'{corr_id_prefix}Conversion to integer failed for input(s). Original error: {e}.')
-        raise ValueError("Failed to convert one or both inputs to integers.")
+
 
     # Calculate the sum.
     result = num1 + num2
