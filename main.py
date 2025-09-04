@@ -22,16 +22,35 @@ def _run_agent_process():
     making it testable.
     """
     try:
-        # Set default environment variables that might be expected as integers by original_agent_main
-        # os.environ.setdefault is used, which only sets the variable if it's not already present.
-        os.environ.setdefault('AGENT_PORT', '8080')
-        os.environ.setdefault('AGENT_TIMEOUT', '300')
+        # Define expected integer environment variables and their default values
+        int_env_vars = {
+            'AGENT_PORT': 8080,
+            'AGENT_TIMEOUT': 300,
+        }
+
+        for var_name, default_int_value in int_env_vars.items():
+            current_value = os.getenv(var_name)
+            
+            # Try to convert the current value to an integer
+            try:
+                if current_value is not None:
+                    parsed_value = int(current_value)
+                    # If successful, ensure it's set as a string in os.environ
+                    os.environ[var_name] = str(parsed_value)
+                else:
+                    # If the variable is not set, use the default integer value
+                    os.environ[var_name] = str(default_int_value)
+            except ValueError:
+                # If current_value is not convertible to int (e.g., "abc")
+                logger.warning(
+                    f"Environment variable '{var_name}' has an invalid integer value "
+                    f"'{current_value}'. Using default value '{default_int_value}'."
+                )
+                os.environ[var_name] = str(default_int_value)
 
         asyncio.run(original_agent_main())
     except KeyboardInterrupt:
         logger.info("Agent execution stopped by user.")
-
-
 
 
 if __name__ == "__main__":
