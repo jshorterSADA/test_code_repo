@@ -17,14 +17,10 @@ def add_two_numbers(num1, num2, corrID=None):
 
     # Attempt to convert inputs to integers.
     logging.info(f'{corr_id_prefix}Attempting to convert inputs to integers.')
-    try:
+ 
         num1_int = int(num1)
         num2_int = int(num2)
-    except ValueError as e:
-        # Log the specific conversion failure and then re-raise the error.
-        logging.error(f'{corr_id_prefix}Conversion to integer failed for input(s) num1="{num1}" and num2="{num2}". Original error: {e}.')
-        # Re-raise a ValueError with the specific error message requested in the problem description.
-        raise ValueError("Invalid input. Please provide numbers.") from e
+
 
     # Calculate the sum using the successfully converted integer values.
     result = num1_int + num2_int
