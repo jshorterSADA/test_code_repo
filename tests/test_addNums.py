@@ -1,138 +1,252 @@
-To create a self-contained unit test that validates the fix for the `add_two_numbers` function, we'll embed the corrected function directly within the test file. This ensures the test always runs against the intended version of the code.
+To validate the fix for the `add_two_numbers` function, we'll create a self-contained unit test file. This test will verify:
+1.  **Correctness for valid inputs**: Ensure the function still sums numbers correctly, including various integer and string representations.
+2.  **Robustness for invalid inputs**: Crucially, verify that the function now raises `ValueError` for non-numeric strings and `TypeError` for unsupported types (like `None`, `list`, `dict`), with the expected error messages.
+3.  **Correlation ID handling**: Check that the `corrID` parameter correctly overrides or defaults to the global `correlation_ID`.
 
-The original error occurred because `num2` (the original input) was used in the addition instead of `num2_int` (the converted integer value), leading to a `TypeError` when `num2` was a string. The fix replaces `num2` with `num2_int` in the addition.
-
-The unit test will include several test cases, with a strong focus on the scenarios that caused the original error, i.e., mixing string and integer inputs or having both inputs as strings.
-
-**File Name:** `tests/test_addNums.py`
+**File Name**: `tests/test_addNums.py`
 
 
 # tests/test_addNums.py
 
 import unittest
 import logging
-import os
+import sys
+from io import StringIO
 
-# --- Fixed add_two_numbers function (copied for self-containment) ---
-# This section contains the function with the proposed fix applied.
-# The indentation issue noted in the original prompt's comment has been
-# corrected here to reflect a runnable function that would produce the TypeError.
+# --- Start of the self-contained code under test ---
+# This section contains the 'fixed' version of the add_two_numbers function
+# and its dependencies (correlation_ID and logging configuration).
 
-correlation_ID = "41131d34-334c-488a-bce2-a7642b27cf35"
+correlation_ID ="41131d34-334c-488a-bce2-a7642b27cf35"
 
 def add_two_numbers(num1, num2, corrID=None):
     """
     This function takes two numbers (integers or string representations) as input and returns their sum.
-    It attempts to convert inputs to integers if they are not already.
+    It attempts to convert inputs to integers.
+    It gracefully handles cases where inputs cannot be converted to numbers.
     """
     # Determine the correlation ID to use for this function call
     # If corrID is provided as an argument, use it; otherwise, fall back to the global correlation_ID.
     current_corr_id = corrID if corrID is not None else correlation_ID
     corr_id_prefix = f'{current_corr_id} - ' if current_corr_id else ''
 
-    # Configure logging to be quiet during tests unless explicitly needed.
-    # We set it to CRITICAL to suppress INFO messages during test runs.
-    # This setup is typically done once for an application, but for a self-contained
-    # test of a snippet, it's included here.
-    # Check if a logger is already configured to avoid re-configuring handlers.
-    if not logging.getLogger().handlers:
-        logging.basicConfig(level=logging.CRITICAL, format='%(asctime)s - %(levelname)s - %(message)s')
-
     logging.info(f'{corr_id_prefix}Function `add_two_numbers` called with num1={num1}, num2={num2}.')
 
-    # Attempt to convert inputs to integers.
-    logging.info(f'{corr_id_prefix}Attempting to convert inputs to integers.')
-    num1_int = int(num1)
-    num2_int = int(num2)
+    try:
+        logging.info(f'{corr_id_prefix}Attempting to convert inputs to integers.')
+        # Attempt to convert inputs to integers.
+        num1_int = int(num1)
+        num2_int = int(num2)
+    except ValueError as e:
+        # This occurs if the string representation is not a valid integer (e.g., int("abc")).
+        error_message = f"Invalid input. Please provide numbers (e.g., '10', 25). Details: {e}"
+        logging.error(f'{corr_id_prefix}Input conversion failed (ValueError): {error_message}')
+        raise ValueError(error_message)
+    except TypeError as e:
+        # This occurs if the input is of a type that cannot be implicitly converted to int
+        # (e.g., None, list, dict).
+        error_message = f"Invalid input type. Please provide numbers (or strings convertible to numbers). Details: {e}"
+        logging.error(f'{corr_id_prefix}Input conversion failed (TypeError): {error_message}')
+        raise TypeError(error_message)
 
     # Calculate the sum using the successfully converted integer values.
-    # THIS IS THE FIX: Changed `result = num1_int + num2` to `result = num1_int + num2_int`
     result = num1_int + num2_int
     logging.info(f'{corr_id_prefix}Calculation successful. Result: {result}.')
 
     # Return the result.
     return result
 
-# --- Unit Test Class ---
-class TestAddNumbersFix(unittest.TestCase):
+# --- End of the self-contained code under test ---
+
+
+class TestAddTwoNumbers(unittest.TestCase):
+    """
+    Test suite for the add_two_numbers function, focusing on its
+    correctness and the newly implemented error handling.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        """
+        Set up logging configuration for the entire test class.
+        This captures log messages to an in-memory stream for assertions.
+        """
+        cls.log_stream = StringIO()
+        cls.handler = logging.StreamHandler(cls.log_stream)
+        cls.formatter = logging.Formatter('%(levelname)s:%(message)s')
+        cls.handler.setFormatter(cls.formatter)
+        
+        # Get the root logger and add our handler
+        cls.root_logger = logging.getLogger()
+        # Set level to INFO to capture all logs from the function
+        cls.root_logger.setLevel(logging.INFO) 
+        cls.root_logger.addHandler(cls.handler)
+        # Prevent logs from propagating to the console if other handlers are present
+        cls.root_logger.propagate = False 
+
+    @classmethod
+    def tearDownClass(cls):
+        """
+        Clean up logging configuration after all tests in the class are done.
+        """
+        cls.root_logger.removeHandler(cls.handler)
+        cls.handler.close()
+        cls.root_logger.propagate = True # Restore propagation
 
     def setUp(self):
-        # Optionally, you can configure logging specifically for tests here,
-        # e.g., redirecting logs to a StringIO or setting a higher level.
-        # For simplicity, we've set basicConfig within the function itself
-        # to ensure it's always configured, but usually it's global for an app.
-        pass
+        """
+        Prepare for each test: Clear the log stream and reset global correlation_ID.
+        """
+        self.log_stream.truncate(0) # Clear content
+        self.log_stream.seek(0)     # Reset position to the beginning
 
-    def tearDown(self):
-        # Clean up after each test if necessary
-        pass
+        # Ensure the global correlation_ID is at its default for each test
+        # (Though it's a string constant, good practice if it were mutable)
+        global correlation_ID
+        correlation_ID = "41131d34-334c-488a-bce2-a7642b27cf35"
 
-    def test_original_error_scenario_string_int(self):
-        """
-        Validates the fix for the exact scenario that caused the original TypeError.
-        `num1` is a string, `num2` is an int.
-        """
-        self.assertEqual(add_two_numbers("5", 10), 15)
+    # --- Test Cases for Valid Inputs ---
 
-    def test_symmetric_scenario_int_string(self):
-        """
-        Validates the fix for the symmetric scenario: `num1` is an int, `num2` is a string.
-        """
-        self.assertEqual(add_two_numbers(5, "10"), 15)
-
-    def test_both_strings(self):
-        """
-        Validates the fix when both inputs are string representations of numbers.
-        """
-        self.assertEqual(add_two_numbers("7", "3"), 10)
-
-    def test_both_integers(self):
-        """
-        Ensures the function still works correctly with standard integer inputs.
-        """
+    def test_add_positive_integers(self):
+        """Test summing two positive integers."""
+        self.assertEqual(add_two_numbers(5, 3), 8)
         self.assertEqual(add_two_numbers(100, 200), 300)
 
-    def test_negative_numbers_with_strings(self):
-        """
-        Tests with negative numbers, including string representations.
-        """
-        self.assertEqual(add_two_numbers("-5", "10"), 5)
-        self.assertEqual(add_two_numbers(5, "-10"), -5)
-        self.assertEqual(add_two_numbers("-5", -10), -15)
+    def test_add_negative_integers(self):
+        """Test summing two negative integers."""
+        self.assertEqual(add_two_numbers(-5, -3), -8)
+        self.assertEqual(add_two_numbers(-10, -20), -30)
 
-    def test_zero_with_strings(self):
-        """
-        Tests scenarios involving zero as string or int.
-        """
-        self.assertEqual(add_two_numbers("0", 10), 10)
-        self.assertEqual(add_two_numbers(5, "0"), 5)
+    def test_add_mixed_integers(self):
+        """Test summing mixed positive/negative integers and zeros."""
+        self.assertEqual(add_two_numbers(5, -3), 2)
+        self.assertEqual(add_two_numbers(-5, 3), -2)
+        self.assertEqual(add_two_numbers(0, 0), 0)
+        self.assertEqual(add_two_numbers(10, 0), 10)
+        self.assertEqual(add_two_numbers(0, -7), -7)
+
+    def test_add_string_integers(self):
+        """Test summing two integers provided as strings."""
+        self.assertEqual(add_two_numbers("5", "3"), 8)
+        self.assertEqual(add_two_numbers("-10", "20"), 10)
         self.assertEqual(add_two_numbers("0", "0"), 0)
 
-    def test_invalid_input_raises_value_error(self):
+    def test_add_mixed_types_string_and_int(self):
+        """Test summing an integer and an integer-string."""
+        self.assertEqual(add_two_numbers(5, "3"), 8)
+        self.assertEqual(add_two_numbers("10", 20), 30)
+        self.assertEqual(add_two_numbers(-5, "3"), -2)
+
+    # --- Test Cases for Invalid Inputs (Validating the Fix) ---
+
+    def test_invalid_string_input_value_error(self):
         """
-        Tests that passing non-numeric strings correctly raises a ValueError
-        due to the `int()` conversion failure.
+        Test that `ValueError` is raised for non-numeric string inputs (e.g., "abc")
+        and verify the error message content.
         """
-        with self.assertRaises(ValueError):
-            add_two_numbers("abc", 10)
-        with self.assertRaises(ValueError):
-            add_two_numbers(10, "xyz")
-        with self.assertRaises(ValueError):
-            add_two_numbers("abc", "xyz")
+        expected_regex = r"Invalid input\. Please provide numbers \(e\.g\., '10', 25\)\. Details: invalid literal for int\(\) with base 10: 'abc'"
+        with self.assertRaisesRegex(ValueError, expected_regex):
+            add_two_numbers("abc", 5)
+
+        expected_regex = r"Invalid input\. Please provide numbers \(e\.g\., '10', 25\)\. Details: invalid literal for int\(\) with base 10: 'hello'"
+        with self.assertRaisesRegex(ValueError, expected_regex):
+            add_two_numbers(10, "hello")
+        
+        log_output = self.log_stream.getvalue()
+        self.assertIn("Input conversion failed (ValueError):", log_output)
+        self.assertIn("invalid literal for int() with base 10: 'abc'", log_output)
+
+
+    def test_none_input_type_error(self):
+        """
+        Test that `TypeError` is raised for `None` inputs
+        and verify the error message content.
+        """
+        expected_regex = r"Invalid input type\. Please provide numbers \(or strings convertible to numbers\)\. Details: int\(\) argument must be a string, a bytes-like object or a real number, not 'NoneType'"
+        with self.assertRaisesRegex(TypeError, expected_regex):
+            add_two_numbers(None, 5)
+        
+        with self.assertRaisesRegex(TypeError, expected_regex):
+            add_two_numbers(10, None)
+        
+        log_output = self.log_stream.getvalue()
+        self.assertIn("Input conversion failed (TypeError):", log_output)
+        self.assertIn("int() argument must be a string, a bytes-like object or a real number, not 'NoneType'", log_output)
+
+
+    def test_list_input_type_error(self):
+        """
+        Test that `TypeError` is raised for `list` inputs
+        and verify the error message content.
+        """
+        expected_regex = r"Invalid input type\. Please provide numbers \(or strings convertible to numbers\)\. Details: int\(\) argument must be a string, a bytes-like object or a real number, not 'list'"
+        with self.assertRaisesRegex(TypeError, expected_regex):
+            add_two_numbers([1, 2], 5)
+        
+        log_output = self.log_stream.getvalue()
+        self.assertIn("Input conversion failed (TypeError):", log_output)
+        self.assertIn("int() argument must be a string, a bytes-like object or a real number, not 'list'", log_output)
+
+
+    def test_dict_input_type_error(self):
+        """
+        Test that `TypeError` is raised for `dict` inputs
+        and verify the error message content.
+        """
+        expected_regex = r"Invalid input type\. Please provide numbers \(or strings convertible to numbers\)\. Details: int\(\) argument must be a string, a bytes-like object or a real number, not 'dict'"
+        with self.assertRaisesRegex(TypeError, expected_regex):
+            add_two_numbers({"a": 1}, 5)
+        
+        log_output = self.log_stream.getvalue()
+        self.assertIn("Input conversion failed (TypeError):", log_output)
+        self.assertIn("int() argument must be a string, a bytes-like object or a real number, not 'dict'", log_output)
+
+    # --- Test Cases for Correlation ID Handling ---
 
     def test_correlation_id_override(self):
-        """
-        Tests that providing a corrID overrides the global one.
-        (This aspect wasn't part of the original error but is good to test.)
-        """
-        # We can't easily assert on logging messages without mocking,
-        # but we can ensure the function runs without error with corrID.
-        # If we were to test logging, we'd use unittest.mock.patch('logging.info')
-        # and then inspect mock.call_args_list.
-        self.assertEqual(add_two_numbers(1, 2, corrID="test-id"), 3)
+        """Test that corrID parameter overrides the global correlation_ID."""
+        test_corr_id = "custom-corr-id-123"
+        result = add_two_numbers(1, 2, corrID=test_corr_id)
+        self.assertEqual(result, 3)
+        log_output = self.log_stream.getvalue()
+        # Ensure the custom ID is in the logs
+        self.assertIn(f"{test_corr_id} - Function `add_two_numbers` called with", log_output)
+        self.assertIn(f"{test_corr_id} - Calculation successful. Result: 3.", log_output)
+        # Ensure the default global ID is NOT in the logs when overridden
+        self.assertNotIn(f"{correlation_ID} - Function `add_two_numbers` called with", log_output)
 
 
-# This allows running the tests directly from the command line using `python -m unittest tests/test_addNums.py`
-# or simply `python tests/test_addNums.py`
+    def test_correlation_id_default(self):
+        """Test that the global correlation_ID is used when corrID is not provided."""
+        result = add_two_numbers(1, 2)
+        self.assertEqual(result, 3)
+        log_output = self.log_stream.getvalue()
+        # Ensure the default global ID is in the logs
+        self.assertIn(f"{correlation_ID} - Function `add_two_numbers` called with", log_output)
+        self.assertIn(f"{correlation_ID} - Calculation successful. Result: 3.", log_output)
+        
+    def test_correlation_id_none_param(self):
+        """Test that passing None to corrID parameter falls back to global correlation_ID."""
+        result = add_two_numbers(1, 2, corrID=None)
+        self.assertEqual(result, 3)
+        log_output = self.log_stream.getvalue()
+        # Ensure the default global ID is in the logs
+        self.assertIn(f"{correlation_ID} - Function `add_two_numbers` called with", log_output)
+        
+    def test_correlation_id_empty_string_param(self):
+        """Test that passing an empty string to corrID results in no prefix."""
+        result = add_two_numbers(1, 2, corrID="")
+        self.assertEqual(result, 3)
+        log_output = self.log_stream.getvalue()
+        # The prefix should be empty, so no correlation ID or hyphen
+        self.assertIn("Function `add_two_numbers` called with num1=1, num2=2.", log_output)
+        # Ensure no hyphenated prefix is present
+        self.assertNotIn("- Function `add_two_numbers`", log_output) 
+        self.assertNotIn(correlation_ID, log_output) # Default ID should not be present
+
+
+# This block allows you to run the tests directly from the command line
+# using `python -m unittest tests/test_addNums.py` or simply `python tests/test_addNums.py`
 if __name__ == '__main__':
     unittest.main()
+
