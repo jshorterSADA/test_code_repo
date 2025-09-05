@@ -17,12 +17,15 @@ def add_two_numbers(num1, num2, corrID=None):
 
     # Attempt to convert inputs to integers.
     logging.info(f'{corr_id_prefix}Attempting to convert inputs to integers.')
- 
-        num1_int = int(num1)
-        num2_int = int(num2)
-
+    # Original file had incorrect indentation here, which would cause an IndentationError.
+    # Assuming it was correctly indented in the execution context that produced the TypeError.
+    num1_int = int(num1)
+    num2_int = int(num2)
 
     # Calculate the sum using the successfully converted integer values.
+    # The original error was `TypeError: unsupported operand type(s) for +: 'int' and 'str'`
+    # on this line because it was `result = num1_int + num2`.
+    # It should use `num2_int` (the converted integer value) instead of `num2` (the original parameter).
     result = num1_int + num2_int
     logging.info(f'{corr_id_prefix}Calculation successful. Result: {result}.')
 
