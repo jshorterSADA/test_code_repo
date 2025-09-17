@@ -21,7 +21,6 @@ def add_two_numbers(num1, num2, corrID=None):
     logging.info(f'{corr_id_prefix}Function `add_two_numbers` called with num1={num1}, num2={num2}.')
     logging.info(f'{corr_id_prefix}Attempting to convert inputs to integers.')
 
-    try:
         # Attempt to convert inputs to integers.
         # This is where the ValueError can occur if inputs are not valid.
         num1_int = int(num1)
@@ -31,13 +30,5 @@ def add_two_numbers(num1, num2, corrID=None):
         result = num1_int + num2_int
         logging.info(f'{corr_id_prefix}Successfully added {num1_int} and {num2_int}. Result: {result}')
         return result
-    except ValueError:
-        # Gracefully handle ValueError when inputs cannot be converted to integers.
-        # Log the error message in the specified format.
-        logging.error(f'{current_corr_id} Value Error: Failed to convert one or both inputs to integers.')
-        return None  # Return None to indicate failure as per graceful handling
-    except Exception as e:
-        # Catch any other unexpected errors during the process (e.g., TypeError if input is None)
-        logging.error(f'{current_corr_id} An unexpected error occurred: {type(e).__name__}: {e}')
-        return None
+ 
 
