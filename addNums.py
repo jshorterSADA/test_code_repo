@@ -21,19 +21,11 @@ def add_two_numbers(num1, num2, corrID=None):
     logging.info(f'{corr_id_prefix}Function `add_two_numbers` called with num1={num1}, num2={num2}.')
     logging.info(f'{corr_id_prefix}Attempting to convert inputs to integers.')
 
-    try:
         # Attempt to convert inputs to integers.
         # This is where the ValueError can occur if inputs are not valid.
         num1_int = int(num1)
         num2_int = int(num2)
-    except ValueError:
-        # The problem statement indicates a ValueError occurs when converting inputs.
-        # The function's docstring also states it should "gracefully handles cases where inputs cannot be converted".
-        # The required error output format is: "correlation_ID:41131d34-334c-488a-bce2-a7642b27cf35 Value Error: Failed to convert one or both inputs to integers."
-        # This implies that "correlation_ID:" is a literal prefix in the error message.
-        error_message_for_log = f'correlation_ID:{current_corr_id} Value Error: Failed to convert one or both inputs to integers.'
-        logging.error(error_message_for_log)
-        return None # Return None to indicate that the operation failed gracefully
+
 
     # Calculate the sum
     result = num1_int + num2_int
