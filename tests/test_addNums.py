@@ -1,26 +1,46 @@
-To validate the fix, we'll create a self-contained Python `unittest` file named `tests/test_addNums.py`. This test will include the fixed `add_two_numbers` function. We will use `unittest.mock.patch` to mock the `logging.error` and `logging.info` calls, allowing us to assert that the correct error message is logged when invalid inputs are provided, and that `None` is returned, as per the fix. We'll also include a test for valid input to ensure existing functionality remains intact.
+To create a self-contained unittest that validates the fix, we will:
+1.  Dynamically create a Python module file containing the fixed `add_two_numbers` function. This ensures the test is always run against the exact fixed code.
+2.  Import this temporary module.
+3.  Use `unittest.TestCase` for our test class.
+4.  Implement `setUp` and `tearDown` methods to capture `sys.stderr` (where logging output goes by default) and manage logging handlers, ensuring a clean state for each test.
+5.  Write a test method that calls `add_two_numbers` with invalid inputs.
+6.  Assert that the function returns `None` (as per its design for error handling).
+7.  Assert that the captured log output contains the *fixed* error message.
+8.  Include additional tests to ensure valid inputs work and that custom correlation IDs are handled correctly.
 
-**File: `tests/test_addNums.py`**
+**File Name**: `tests/test_addNums_fix.py`
 
 
+# tests/test_addNums_fix.py
 import unittest
-from unittest.mock import patch
 import logging
 import io
+import sys
+import os
+import importlib.util
 
-# --- Start of the fixed add_two_numbers function (self-contained) ---
-# Note: The global logging.basicConfig line from the original file is omitted here.
-# In a unit test, it's generally better to mock logging calls directly
-# rather than configuring the global logger, to avoid interference with other tests.
+# --- Create a temporary module with the fixed code for testing ---
+# This ensures the test is self-contained and uses the exact fixed logic.
+# In a real project, you would import from the actual 'addNums.py' file.
+
+# Define the content of the fixed `addNums.py`
+fixed_addnums_content = """
+import logging
+
+# Configure logging to match the desired output format for error and info messages.
+# The 'message' format ensures that correlation IDs are printed directly as specified.
+# For testing purposes, we assume this basicConfig will be effective, or that
+# the test setup will correctly redirect log output regardless.
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 correlation_ID ="41131d34-334c-488a-bce2-a7642b27cf35"
 
 def add_two_numbers(num1, num2, corrID=None):
-    """
+    \"\"\"
     This function takes two numbers (integers or string representations) as input and returns their sum.
     It attempts to convert inputs to integers.
     It gracefully handles cases where inputs cannot be converted to numbers.
-    """
+    \"\"\"
     # Determine the correlation ID to use for this function call
     # If corrID is provided as an argument, use it; otherwise, fall back to the global correlation_ID.
     current_corr_id = corrID if corrID is not None else correlation_ID
@@ -33,103 +53,163 @@ def add_two_numbers(num1, num2, corrID=None):
     logging.info(f'{info_prefix}Attempting to convert inputs to integers.')
 
     try:
-        # The original file had these lines incorrectly indented and lacked error handling.
-        # They are now correctly indented within a try block to catch conversion errors.
         num1_int = int(num1)
         num2_int = int(num2)
     except ValueError:
-        # Log the error message in the specified format and gracefully handle by returning None.
-        logging.error(f'{error_prefix}Value Error: Failed to convert one or both inputs to integers.')
+        # THIS IS THE FIX WE ARE TESTING: The error message is now "Invalid input. Please provide numbers."
+        logging.error(f'{error_prefix}Invalid input. Please provide numbers.')
         return None
 
     # Calculate the sum
     result = num1_int + num2_int
     logging.info(f'{info_prefix}Successfully added {num1_int} and {num2_int}. Result: {result}')
     return result
-# --- End of the fixed add_two_numbers function ---
+"""
 
+# Define temporary module path and name
+TEST_MODULE_NAME = "temp_addnums_module_for_test"
+TEST_MODULE_PATH = f"{TEST_MODULE_NAME}.py"
 
+# Create the temporary module file
+with open(TEST_MODULE_PATH, "w") as f:
+    f.write(fixed_addnums_content)
+
+# Import the function from the temporary module
+# This ensures that the global variables (like correlation_ID) and the function
+# from the *fixed* code are available to our test.
+spec = importlib.util.spec_from_file_location(TEST_MODULE_NAME, TEST_MODULE_PATH)
+temp_module = importlib.util.module_from_spec(spec)
+sys.modules[TEST_MODULE_NAME] = temp_module
+spec.loader.exec_module(temp_module)
+
+# Now access the function and global correlation_ID from the loaded module
+add_two_numbers = temp_module.add_two_numbers
+correlation_ID = temp_module.correlation_ID # Get the global ID for constructing expected log message
+
+# --- Unit Test Class ---
 class TestAddTwoNumbersFix(unittest.TestCase):
 
-    # Use patch to mock logging.error and logging.info for capturing calls
-    @patch('logging.error')
-    @patch('logging.info')
-    def test_invalid_input_returns_none_and_logs_error(self, mock_logging_info, mock_logging_error):
+    def setUp(self):
         """
-        Tests that when invalid (non-numeric) inputs are provided:
-        1. The function returns None.
-        2. An error message is logged in the specified format with the correct correlation ID.
-        3. Initial info messages are logged.
+        Set up for each test: Redirect sys.stderr to capture logging output
+        and configure a temporary logging handler to ensure capture.
         """
-        num1 = "not_a_number"
-        num2 = "also_not_a_number"
-        expected_corr_id = correlation_ID # Using the global one as no custom corrID is passed
+        # Backup original sys.stderr and logging handlers
+        self._original_stderr = sys.stderr
+        self._original_handlers = logging.root.handlers[:]
 
-        result = add_two_numbers(num1, num2)
+        # Redirect sys.stderr to a StringIO object
+        self.stderr_capture = io.StringIO()
+        sys.stderr = self.stderr_capture
 
-        # Assert 1: The function returns None
-        self.assertIsNone(result)
+        # Clear existing handlers from the root logger to avoid interference
+        for handler in logging.root.handlers:
+            logging.root.removeHandler(handler)
 
-        # Assert 2: An error message is logged correctly
-        expected_error_message = f'correlation_ID:{expected_corr_id} Value Error: Failed to convert one or both inputs to integers.'
-        mock_logging_error.assert_called_once_with(expected_error_message)
+        # Add a new StreamHandler that writes to our StringIO capture
+        self.test_handler = logging.StreamHandler(self.stderr_capture)
+        # Set the format consistent with the basicConfig in the module
+        self.test_handler.setFormatter(logging.Formatter('%(message)s'))
+        logging.root.addHandler(self.test_handler)
+        logging.root.setLevel(logging.INFO) # Ensure INFO level and above are captured
 
-        # Assert 3: Info messages are logged before the error
-        self.assertEqual(mock_logging_info.call_count, 2)
-        mock_logging_info.assert_any_call(f'{expected_corr_id} - Function `add_two_numbers` called with num1={num1}, num2={num2}.')
-        mock_logging_info.assert_any_call(f'{expected_corr_id} - Attempting to convert inputs to integers.')
-
-
-    @patch('logging.error')
-    @patch('logging.info')
-    def test_valid_input_returns_sum_and_logs_info(self, mock_logging_info, mock_logging_error):
+    def tearDown(self):
         """
-        Tests that when valid numeric inputs are provided:
-        1. The function returns the correct sum.
-        2. No error message is logged.
-        3. All relevant info messages are logged correctly.
+        Clean up after each test: Restore original sys.stderr and logging handlers,
+        and remove the temporary module file.
+        """
+        # Restore original sys.stderr
+        sys.stderr = self._original_stderr
+
+        # Clean up logging handlers
+        logging.root.removeHandler(self.test_handler)
+        # Remove any other handlers that might have been added during a test
+        for handler in logging.root.handlers[:]:
+            logging.root.removeHandler(handler)
+        # Restore original handlers
+        for handler in self._original_handlers:
+            logging.root.addHandler(handler)
+
+        # Clean up the temporary module file
+        if os.path.exists(TEST_MODULE_PATH):
+            os.remove(TEST_MODULE_PATH)
+        # Remove the temporary module from sys.modules
+        if TEST_MODULE_NAME in sys.modules:
+            del sys.modules[TEST_MODULE_NAME]
+
+    def test_invalid_input_logs_fixed_error_message(self):
+        """
+        Test that `add_two_numbers` logs the *fixed* specific error message
+        when provided with non-integer inputs.
+        """
+        invalid_num1 = "hello"
+        invalid_num2 = "world"
+        
+        # Expected error message based on the fix, using the global correlation_ID
+        expected_error_log_segment = f'correlation_ID:{correlation_ID} Invalid input. Please provide numbers.'
+
+        # Call the function with invalid inputs
+        result = add_two_numbers(invalid_num1, invalid_num2)
+
+        # Assert that the function returns None as designed for error cases
+        self.assertIsNone(result, "Function should return None for invalid inputs.")
+
+        # Get the captured log output
+        captured_log = self.stderr_capture.getvalue()
+
+        # Assert that the captured log contains the fixed error message
+        self.assertIn(expected_error_log_segment, captured_log,
+                      f"Log output should contain the fixed error message: '{expected_error_log_segment}'")
+
+        # Optionally, check for the presence of info messages to ensure they are still logged
+        self.assertIn(f'{correlation_ID} - Function `add_two_numbers` called with num1={invalid_num1}, num2={invalid_num2}.', captured_log)
+        self.assertIn(f'{correlation_ID} - Attempting to convert inputs to integers.', captured_log)
+
+    def test_valid_input_no_error_logged(self):
+        """
+        Test that valid inputs don't trigger the error log message.
         """
         num1 = 10
-        num2 = "5" # Test string conversion to int
-        expected_corr_id = correlation_ID
+        num2 = 20
 
         result = add_two_numbers(num1, num2)
 
-        # Assert 1: The function returns the correct sum
-        self.assertEqual(result, 15)
+        # Assert the correct sum is returned
+        self.assertEqual(result, 30, "Function should correctly sum valid integers.")
 
-        # Assert 2: No error message is logged
-        mock_logging_error.assert_not_called()
+        captured_log = self.stderr_capture.getvalue()
 
-        # Assert 3: Info messages are logged correctly
-        self.assertEqual(mock_logging_info.call_count, 3) # Call, Attempting conversion, Success
-        mock_logging_info.assert_any_call(f'{expected_corr_id} - Function `add_two_numbers` called with num1={num1}, num2={num2}.')
-        mock_logging_info.assert_any_call(f'{expected_corr_id} - Attempting to convert inputs to integers.')
-        mock_logging_info.assert_any_call(f'{expected_corr_id} - Successfully added 10 and 5. Result: 15')
+        # The error message should NOT be present for valid inputs
+        error_log_segment = f'correlation_ID:{correlation_ID} Invalid input. Please provide numbers.'
+        self.assertNotIn(error_log_segment, captured_log,
+                         "Error message should not be logged for valid inputs.")
+        
+        # Ensure the success info log is present
+        self.assertIn(f'{correlation_ID} - Successfully added {num1} and {num2}. Result: 30', captured_log)
 
-    @patch('logging.error')
-    @patch('logging.info')
-    def test_custom_correlation_id_is_used(self, mock_logging_info, mock_logging_error):
+    def test_custom_correlation_id_invalid_input(self):
         """
-        Tests that a custom correlation ID provided as an argument is used in logging.
+        Test that the fixed error message uses a custom correlation ID when provided
+        and inputs are invalid.
         """
-        num1 = "invalid_value"
-        num2 = 7
-        custom_corr_id = "custom-test-id-123"
+        invalid_num1 = "test"
+        invalid_num2 = "data"
+        custom_corr_id = "custom-test-id-987"
 
-        result = add_two_numbers(num1, num2, corrID=custom_corr_id)
+        # Expected error message with the custom correlation ID
+        expected_error_log_segment = f'correlation_ID:{custom_corr_id} Invalid input. Please provide numbers.'
 
-        self.assertIsNone(result)
+        # Call the function with invalid inputs and a custom correlation ID
+        result = add_two_numbers(invalid_num1, invalid_num2, corrID=custom_corr_id)
 
-        # Verify that the error message uses the custom correlation ID
-        expected_error_message = f'correlation_ID:{custom_corr_id} Value Error: Failed to convert one or both inputs to integers.'
-        mock_logging_error.assert_called_once_with(expected_error_message)
+        self.assertIsNone(result, "Function should return None for invalid inputs with custom corrID.")
 
-        # Verify info messages also use the custom correlation ID
-        self.assertEqual(mock_logging_info.call_count, 2)
-        mock_logging_info.assert_any_call(f'{custom_corr_id} - Function `add_two_numbers` called with num1={num1}, num2={num2}.')
-        mock_logging_info.assert_any_call(f'{custom_corr_id} - Attempting to convert inputs to integers.')
+        captured_log = self.stderr_capture.getvalue()
 
+        self.assertIn(expected_error_log_segment, captured_log,
+                      f"Log output should contain the fixed error message with custom corrID: '{expected_error_log_segment}'")
+        self.assertIn(f'{custom_corr_id} - Function `add_two_numbers` called with num1={invalid_num1}, num2={invalid_num2}.', captured_log)
 
+# This allows running the tests directly from the file
 if __name__ == '__main__':
     unittest.main()
