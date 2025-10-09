@@ -21,15 +21,10 @@ def add_two_numbers(num1, num2, corrID=None):
     logging.info(f'{corr_id_prefix}Function `add_two_numbers` called with num1={num1}, num2={num2}.')
     logging.info(f'{corr_id_prefix}Attempting to convert inputs to integers.')
 
-    try:
+ 
         # Corrected indentation for these lines (they were over-indented in the original file)
         num1_int = int(num1)
         num2_int = int(num2)
-    except ValueError:
-        # Log the error message in the format specified by the problem description
-        # (correlation_ID Value Error: Message)
-        logging.error(f'{current_corr_id} Value Error: Failed to convert one or both inputs to integers.')
-        return None # Indicate that the operation failed by returning None
 
     # Calculate the sum
     result = num1_int + num2_int
