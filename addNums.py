@@ -18,15 +18,21 @@ def add_two_numbers(num1, num2, corrID=None):
     current_corr_id = corrID if corrID is not None else correlation_ID
     # For info messages, we'll use a prefix like "ID - "
     info_prefix = f'{current_corr_id} - ' if current_corr_id else ''
+    # For error messages, we need a prefix like "correlation_ID:ID " to match the error format
+    error_prefix = f'correlation_ID:{current_corr_id} ' if current_corr_id else ''
 
     logging.info(f'{info_prefix}Function `add_two_numbers` called with num1={num1}, num2={num2}.')
     logging.info(f'{info_prefix}Attempting to convert inputs to integers.')
 
-        # The original file had these lines over-indented and lacking error handling.
+    try:
+        # The original file had these lines incorrectly indented and lacked error handling.
         # They are now correctly indented within a try block to catch conversion errors.
         num1_int = int(num1)
         num2_int = int(num2)
-  
+    except ValueError:
+        # Log the error message in the specified format and gracefully handle by returning None.
+        logging.error(f'{error_prefix}Value Error: Failed to convert one or both inputs to integers.')
+        return None
 
     # Calculate the sum
     result = num1_int + num2_int
