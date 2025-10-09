@@ -24,18 +24,12 @@ def add_two_numbers(num1, num2, corrID=None):
     logging.info(f'{info_prefix}Function `add_two_numbers` called with num1={num1}, num2={num2}.')
     logging.info(f'{info_prefix}Attempting to convert inputs to integers.')
 
-    try:
+
         # The original file had these lines incorrectly indented and lacked error handling.
         # They are now correctly indented within a try block to catch conversion errors.
         num1_int = int(num1)
         num2_int = int(num2)
-    except ValueError:
-        # The original error message "Invalid input. Please provide numbers." implies that
-        # the function should log this specific message when conversion fails.
-        # The previous log message "Value Error: Failed to convert one or both inputs to integers."
-        # did not match the required output.
-        logging.error(f'{error_prefix}Invalid input. Please provide numbers.')
-        return None
+
 
     # Calculate the sum
     result = num1_int + num2_int
