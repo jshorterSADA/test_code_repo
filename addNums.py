@@ -16,17 +16,25 @@ def add_two_numbers(num1, num2, corrID=None):
     # Determine the correlation ID to use for this function call
     # If corrID is provided as an argument, use it; otherwise, fall back to the global correlation_ID.
     current_corr_id = corrID if corrID is not None else correlation_ID
-    corr_id_prefix = f'{current_corr_id} - ' if current_corr_id else ''
+    # For info messages, we'll use a prefix like "ID - "
+    info_prefix = f'{current_corr_id} - ' if current_corr_id else ''
 
-    logging.info(f'{corr_id_prefix}Function `add_two_numbers` called with num1={num1}, num2={num2}.')
-    logging.info(f'{corr_id_prefix}Attempting to convert inputs to integers.')
+    logging.info(f'{info_prefix}Function `add_two_numbers` called with num1={num1}, num2={num2}.')
+    logging.info(f'{info_prefix}Attempting to convert inputs to integers.')
 
- 
-        # Corrected indentation for these lines (they were over-indented in the original file)
+    try:
+        # The original file had these lines over-indented and lacking error handling.
+        # They are now correctly indented within a try block to catch conversion errors.
         num1_int = int(num1)
         num2_int = int(num2)
+    except ValueError:
+        # Gracefully handle the ValueError by logging the error in the specified format
+        # and returning None to indicate failure.
+        error_message = f'correlation_ID:{current_corr_id} Value Error: Failed to convert one or both inputs to integers.'
+        logging.error(error_message)
+        return None # Return None or raise a more specific exception if needed by the caller
 
     # Calculate the sum
     result = num1_int + num2_int
-    logging.info(f'{corr_id_prefix}Successfully added {num1_int} and {num2_int}. Result: {result}')
+    logging.info(f'{info_prefix}Successfully added {num1_int} and {num2_int}. Result: {result}')
     return result
