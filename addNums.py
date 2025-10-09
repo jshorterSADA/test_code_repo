@@ -21,10 +21,10 @@ def add_two_numbers(num1, num2, corrID=None):
     logging.info(f'{corr_id_prefix}Function `add_two_numbers` called with num1={num1}, num2={num2}.')
     logging.info(f'{corr_id_prefix}Attempting to convert inputs to integers.')
 
- 
-        # Corrected indentation for these lines (they were over-indented in the original file)
-        num1_int = int(num1)
-        num2_int = int(num2)
+    # The following lines were over-indented, causing an IndentationError.
+    # They have been corrected to match the standard indentation of the function body.
+    num1_int = int(num1)
+    num2_int = int(num2)
 
     # Calculate the sum
     result = num1_int + num2_int
