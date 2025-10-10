@@ -1,21 +1,17 @@
-Here is a new Python unittest file, `test_addNums.py`, created to validate the fix.
 
-The test focuses on the scenario that caused the original error: providing a non-numeric string as input. With the original code, this test would crash with an unhandled `ValueError`. With the fixed code, the test passes because the exception is gracefully handled, `None` is returned, and a specific error message is logged.
-
-### `test_addNums.py`
-
+# tests/test_addNums.py
 
 import unittest
 import logging
-from io import StringIO
+import io
 
-# --- Start of self-contained code from the proposed fix ---
-# This code is included to make the test file self-contained and runnable.
+# --- Code to be tested (from the "Proposed Fix") ---
+# This is included here to make the unittest self-contained.
 
-# Configure logging for the module.
-# In a real test suite, this might be handled globally, but for a self-contained
-# example, we set it up here. The assertLogs context manager will capture output.
-logging.basicConfig(level=logging.INFO, format='%(message)s', stream=StringIO())
+# Configure logging to match the desired output format for error and info messages.
+# The 'message' format ensures that correlation IDs are printed directly as specified.
+# In a real application, this would likely be configured once at startup.
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 correlation_ID ="41131d34-334c-488a-bce2-a7642b27cf35"
 
@@ -26,6 +22,7 @@ def add_two_numbers(num1, num2, corrID=None):
     It gracefully handles cases where inputs cannot be converted to numbers.
     """
     # Determine the correlation ID to use for this function call
+    # If corrID is provided as an argument, use it; otherwise, fall back to the global correlation_ID.
     current_corr_id = corrID if corrID is not None else correlation_ID
     # For info messages, we'll use a prefix like "ID - "
     info_prefix = f'{current_corr_id} - ' if current_corr_id else ''
@@ -36,83 +33,103 @@ def add_two_numbers(num1, num2, corrID=None):
     logging.info(f'{info_prefix}Attempting to convert inputs to integers.')
 
     try:
-        # The original file lacked error handling for this conversion.
-        # The fix wraps this logic in a try...except block.
+        # The original file had these lines incorrectly indented and lacked error handling.
+        # They are now correctly indented within a try block to catch conversion errors.
         num1_int = int(num1)
         num2_int = int(num2)
-
+    
         # Calculate the sum
         result = num1_int + num2_int
         logging.info(f'{info_prefix}Successfully added {num1_int} and {num2_int}. Result: {result}')
         return result
     except ValueError:
-        # Log an error message if conversion fails.
+        # Log an error message if conversion fails, using the specified error format.
         logging.error(f'{error_prefix}Value Error: Failed to convert one or both inputs to integers.')
-        return None # Return None to indicate failure.
+        return None # Return None to indicate failure as per the graceful handling requirement.
 
-# --- End of self-contained code ---
-
+# --- New Unit Test ---
 
 class TestAddTwoNumbers(unittest.TestCase):
     """
     Test suite for the add_two_numbers function.
     """
 
-    def test_graceful_failure_on_invalid_input(self):
+    def setUp(self):
         """
-        Validates the fix: Ensures the function handles non-numeric input gracefully.
+        Set up a stream to capture log output for each test.
+        This prevents logs from printing to the console during tests and allows
+        us to assert their content.
+        """
+        self.log_stream = io.StringIO()
+        self.stream_handler = logging.StreamHandler(self.log_stream)
+        # We get the root logger and add our handler to it.
+        # It's important to remove it in tearDown to avoid side effects.
+        logging.getLogger().addHandler(self.stream_handler)
 
-        This test calls the function with a value that cannot be converted to an
-        integer ('hello'). With the original code, this would raise an unhandled
-        ValueError. The test verifies that the fixed code instead returns None
-        and logs the appropriate error message.
+    def tearDown(self):
         """
-        # Use assertLogs to capture logging output at the ERROR level
-        with self.assertLogs(level='ERROR') as log:
-            # Call the function with one valid and one invalid input
-            result = add_two_numbers('10', 'hello')
+        Clean up by removing the custom log handler.
+        """
+        logging.getLogger().removeHandler(self.stream_handler)
 
-            # 1. Verify the function returns None as per the graceful handling fix
-            self.assertIsNone(result, "Function should return None for invalid string input.")
+    def test_handles_non_numeric_input_gracefully(self):
+        """
+        Validates the fix: ensures that when a non-numeric string is passed,
+        the function returns None and logs the appropriate ValueError.
+        This test directly targets the scenario that caused the original error.
+        """
+        # Call the function with one invalid input
+        result = add_two_numbers("5", "abc")
 
-            # 2. Verify the correct error message was logged
-            expected_log_message = (
-                f'correlation_ID:{correlation_ID} Value Error: '
-                'Failed to convert one or both inputs to integers.'
-            )
-            # assertLogs provides log output in a list; check the first entry
-            self.assertEqual(len(log.output), 1)
-            self.assertIn(expected_log_message, log.output[0])
+        # 1. Assert that the function returns None as per the graceful handling
+        self.assertIsNone(result, "Function should return None for non-numeric input.")
 
-    def test_successful_addition_with_valid_strings(self):
-        """
-        Tests the happy path to ensure existing functionality remains intact.
-        Verifies that two valid number strings are correctly added.
-        """
-        result = add_two_numbers('5', '15')
-        self.assertEqual(result, 20, "Should correctly sum valid string numbers.")
+        # 2. Assert that the correct error was logged
+        log_output = self.log_stream.getvalue()
+        expected_error_log = (
+            f'correlation_ID:{correlation_ID} Value Error: Failed to convert one or both inputs to integers.'
+        )
+        self.assertIn(expected_error_log, log_output, "Expected ValueError log message was not found.")
 
-    def test_successful_addition_with_integers(self):
+    def test_adds_valid_string_numbers_correctly(self):
         """
-        Tests the happy path with integer inputs.
+        Test the "happy path" to ensure the function still works for valid inputs.
         """
-        result = add_two_numbers(100, 200)
-        self.assertEqual(result, 300, "Should correctly sum integer numbers.")
+        result = add_two_numbers("10", "20")
+        self.assertEqual(result, 30, "Function should correctly add two valid number strings.")
+        
+        # Verify no error was logged
+        log_output = self.log_stream.getvalue()
+        self.assertNotIn("Value Error", log_output, "Error should not be logged for valid inputs.")
 
-    def test_custom_correlation_id_in_error_log(self):
+    def test_adds_valid_integer_numbers_correctly(self):
         """
-        Tests that a custom correlation ID is correctly used in the error log.
+        Test the function with integer inputs instead of strings.
         """
-        custom_id = "test-id-abc-123"
-        with self.assertLogs(level='ERROR') as log:
-            add_two_numbers('not_a_number', 99, corrID=custom_id)
-            
-            expected_log_message = (
-                f'correlation_ID:{custom_id} Value Error: '
-                'Failed to convert one or both inputs to integers.'
-            )
-            self.assertEqual(len(log.output), 1)
-            self.assertIn(expected_log_message, log.output[0])
+        result = add_two_numbers(7, 8)
+        self.assertEqual(result, 15, "Function should correctly add two integers.")
+
+        # Verify no error was logged
+        log_output = self.log_stream.getvalue()
+        self.assertNotIn("Value Error", log_output, "Error should not be logged for valid inputs.")
+
+    def test_uses_custom_correlation_id_in_error_log(self):
+        """
+        Test that a custom correlation ID, when provided, is used in the error log.
+        """
+        custom_id = "test-id-98765"
+        result = add_two_numbers("one", "two", corrID=custom_id)
+
+        # Assert the function returns None
+        self.assertIsNone(result)
+
+        # Assert the error log uses the custom ID
+        log_output = self.log_stream.getvalue()
+        expected_error_log = (
+            f'correlation_ID:{custom_id} Value Error: Failed to convert one or both inputs to integers.'
+        )
+        self.assertIn(expected_error_log, log_output, "Error log should use the custom correlation ID.")
+
 
 if __name__ == '__main__':
     unittest.main(argv=['first-arg-is-ignored'], exit=False)
