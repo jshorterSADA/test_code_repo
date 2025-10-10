@@ -24,7 +24,7 @@ def add_two_numbers(num1, num2, corrID=None):
     logging.info(f'{info_prefix}Function `add_two_numbers` called with num1={num1}, num2={num2}.')
     logging.info(f'{info_prefix}Attempting to convert inputs to integers.')
 
-    try:
+
         # The original file had these lines incorrectly indented and lacked error handling.
         # They are now correctly indented within a try block to catch conversion errors.
         num1_int = int(num1)
@@ -34,8 +34,5 @@ def add_two_numbers(num1, num2, corrID=None):
         result = num1_int + num2_int
         logging.info(f'{info_prefix}Successfully added {num1_int} and {num2_int}. Result: {result}')
         return result
-    except ValueError:
-        # Log an error message if conversion fails, using the specified error format.
-        logging.error(f'{error_prefix}Value Error: Failed to convert one or both inputs to integers.')
-        return None # Return None to indicate failure as per the graceful handling requirement.
+
 
