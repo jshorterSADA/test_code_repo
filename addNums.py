@@ -38,3 +38,4 @@ def add_two_numbers(num1, num2, corrID=None):
         # Log an error message if conversion fails, using the specified error format.
         logging.error(f'{error_prefix}Value Error: Failed to convert one or both inputs to integers.')
         return None # Return None to indicate failure as per the graceful handling requirement.
+
