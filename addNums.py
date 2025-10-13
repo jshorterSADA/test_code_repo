@@ -24,7 +24,7 @@ def add_two_numbers(num1, num2, corrID=None):
     logging.info(f'{info_prefix}Function `add_two_numbers` called with num1={num1}, num2={num2}.')
     logging.info(f'{info_prefix}Attempting to convert inputs to integers.')
 
-    try:
+
         # Attempt to convert inputs to integers
         num1_int = int(num1)
         num2_int = int(num2)
@@ -33,11 +33,3 @@ def add_two_numbers(num1, num2, corrID=None):
         result = num1_int + num2_int
         logging.info(f'{info_prefix}Successfully added {num1_int} and {num2_int}. Result: {result}')
         return result
-    except ValueError:
-        # Log the specific error message as required by the problem description
-        logging.error(f'{error_prefix}Value Error: Failed to convert one or both inputs to integers.')
-        return None # Indicate failure to perform the addition gracefully
-    except Exception as e:
-        # Catch any other unexpected errors
-        logging.error(f'{error_prefix}An unexpected error occurred: {e}')
-        return None
