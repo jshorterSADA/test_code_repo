@@ -25,18 +25,23 @@ def add_two_numbers(num1, num2, corrID=None):
     logging.info(f'{info_prefix}Attempting to convert inputs to integers.')
 
     try:
-        # Attempt to convert inputs to integers
-        # int(None) raises a TypeError, not a ValueError.
-        # We need to catch both ValueError (e.g., int('abc')) and TypeError (e.g., int(None))
-        # to gracefully handle all cases where inputs cannot be converted to numbers.
-        num1_int = int(num1)
-        num2_int = int(num2)
+        # The error "ValueError: invalid literal for int() with base 10: '1e5'" occurs
+        # when trying to convert a string like '1e5' directly to an int.
+        # To handle scientific notation strings (e.g., '1e5') or other float-representable strings,
+        # we first convert to float and then to int. This also handles direct float/int types correctly.
+        num1_float = float(num1)
+        num2_float = float(num2)
+        
+        # Then, convert the floats to integers. This will truncate any decimal part,
+        # fulfilling the "convert inputs to integers" requirement.
+        num1_int = int(num1_float)
+        num2_int = int(num2_float)
     
         # Calculate the sum
         result = num1_int + num2_int
         logging.info(f'{info_prefix}Successfully added {num1_int} and {num2_int}. Result: {result}')
         return result
-    except (ValueError, TypeError): # Corrected to catch both ValueError and TypeError
+    except (ValueError, TypeError): # This block will now correctly catch issues from float() conversion
         # Log the error in the specified format and return None to indicate failure
         logging.error(f'{error_prefix}Value Error: Failed to convert one or both inputs to integers.')
         return None
