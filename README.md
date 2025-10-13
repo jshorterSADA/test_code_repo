@@ -1,75 +1,74 @@
-This is Repo is used to test the Jira_bug_agent the following are examples that can be used to test the code fix suggestions from the gemini-2.5-pro llm:
 
-DEMONSTRATION: Application Log Outputs for Edge Cases
-============================================================ SCENARIO: Normal successful addition
-Input: add_two_numbers(5, 10) Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1=5, num2=10. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. 41131d34-334c-488a-bce2-a7642b27cf35 - Successfully added 5 and 10. Result: 15
-Return Value: 15
-============================================================ SCENARIO: Basic ValueError - non-numeric string
-Input: add_two_numbers('hello', 5) Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1=hello, num2=5. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. correlation_ID:41131d34-334c-488a-bce2-a7642b27cf35 Value Error: Failed to convert one or both inputs to integers.
-Return Value: None
-============================================================ SCENARIO: None as first input
-Input: add_two_numbers(None, 5) Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1=None, num2=5. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. correlation_ID:41131d34-334c-488a-bce2-a7642b27cf35 An unexpected error occurred: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
-Return Value: None
-============================================================ SCENARIO: None as second input
-Input: add_two_numbers(5, None) Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1=5, num2=None. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. correlation_ID:41131d34-334c-488a-bce2-a7642b27cf35 An unexpected error occurred: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
-Return Value: None
-============================================================ SCENARIO: Both inputs None
-Input: add_two_numbers(None, None) Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1=None, num2=None. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. correlation_ID:41131d34-334c-488a-bce2-a7642b27cf35 An unexpected error occurred: int() argument must be a string, a bytes-like object or a real number, not 'NoneType'
-Return Value: None
-============================================================ SCENARIO: Empty string as first input
-Input: add_two_numbers('', 5) Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1=, num2=5. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. correlation_ID:41131d34-334c-488a-bce2-a7642b27cf35 Value Error: Failed to convert one or both inputs to integers.
-Return Value: None
-============================================================ SCENARIO: Empty string as second input
-Input: add_two_numbers(5, '') Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1=5, num2=. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. correlation_ID:41131d34-334c-488a-bce2-a7642b27cf35 Value Error: Failed to convert one or both inputs to integers.
-Return Value: None
-============================================================ SCENARIO: Whitespace-only first input
-Input: add_two_numbers(' ', 5) Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1= , num2=5. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. correlation_ID:41131d34-334c-488a-bce2-a7642b27cf35 Value Error: Failed to convert one or both inputs to integers.
-Return Value: None
-============================================================ SCENARIO: Tab and newline input
-Input: add_two_numbers('\t\n', 5) Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1= , num2=5. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. correlation_ID:41131d34-334c-488a-bce2-a7642b27cf35 Value Error: Failed to convert one or both inputs to integers.
-Return Value: None
-============================================================ SCENARIO: Float string inputs
-Input: add_two_numbers('3.14', '2.71') Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1=3.14, num2=2.71. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. correlation_ID:41131d34-334c-488a-bce2-a7642b27cf35 Value Error: Failed to convert one or both inputs to integers.
-Return Value: None
-============================================================ SCENARIO: Scientific notation
-Input: add_two_numbers('1e5', '2e3') Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1=1e5, num2=2e3. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. correlation_ID:41131d34-334c-488a-bce2-a7642b27cf35 Value Error: Failed to convert one or both inputs to integers.
-Return Value: None
-============================================================ SCENARIO: Unicode full-width digits
-Input: add_two_numbers('５', '３') Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1=５, num2=３. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. 41131d34-334c-488a-bce2-a7642b27cf35 - Successfully added 5 and 3. Result: 8
-Return Value: 8
-============================================================ SCENARIO: Hexadecimal strings
-Input: add_two_numbers('0xFF', '0x10') Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1=0xFF, num2=0x10. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. correlation_ID:41131d34-334c-488a-bce2-a7642b27cf35 Value Error: Failed to convert one or both inputs to integers.
-Return Value: None
-============================================================ SCENARIO: Very large numbers
-Input: add_two_numbers('99999999999999999999999999999999999999999999999999', '11111111111111111111111111111111111111111111111111') Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1=99999999999999999999999999999999999999999999999999, num2=11111111111111111111111111111111111111111111111111. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. 41131d34-334c-488a-bce2-a7642b27cf35 - Successfully added 99999999999999999999999999999999999999999999999999 and 11111111111111111111111111111111111111111111111111. Result: 111111111111111111111111111111111111111111111111110
-Return Value: 111111111111111111111111111111111111111111111111110
-============================================================ SCENARIO: Custom correlation ID with error
-Input: add_two_numbers('invalid', 5) Kwargs: {'corrID': 'custom-test-id-123'} Log Output:
-custom-test-id-123 - Function add_two_numbers called with num1=invalid, num2=5. custom-test-id-123 - Attempting to convert inputs to integers. correlation_ID:custom-test-id-123 Value Error: Failed to convert one or both inputs to integers.
-Return Value: None
-============================================================ SCENARIO: Empty correlation ID
-Input: add_two_numbers('invalid', 5) Kwargs: {'corrID': ''} Log Output:
-Function add_two_numbers called with num1=invalid, num2=5. Attempting to convert inputs to integers. Value Error: Failed to convert one or both inputs to integers.
-Return Value: None
-============================================================ SCENARIO: Potential log injection
-Input: add_two_numbers('5\nFAKE ERROR: correlation_ID:hacker-id Something bad', 5) Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1=5 FAKE ERROR: correlation_ID:hacker-id Something bad, num2=5. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. correlation_ID:41131d34-334c-488a-bce2-a7642b27cf35 Value Error: Failed to convert one or both inputs to integers.
-Return Value: None
-============================================================ SCENARIO: One valid, one invalid
-Input: add_two_numbers(10, 'not_a_number') Log Output:
-41131d34-334c-488a-bce2-a7642b27cf35 - Function add_two_numbers called with num1=10, num2=not_a_number. 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers. correlation_ID:41131d34-334c-488a-bce2-a7642b27cf35 Value Error: Failed to convert one or both inputs to integers.
-Return Value: None
+import uuid
+import logging
+
+# In a typical application, logging would be configured globally, not inside the function.
+# For the purpose of providing a complete, runnable code snippet that produces
+# the specified log outputs, a basic configuration is included here.
+# If this code is integrated into a larger system with existing logging,
+# this basicConfig call might be removed or adjusted.
+if not logging.root.handlers:
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
+
+def add_two_numbers(num1, num2, corrID=None):
+    """
+    Adds two numbers after attempting to convert them to integers.
+    Logs operations and errors according to specified formats.
+
+    Args:
+        num1: The first input, expected to be convertible to an integer.
+        num2: The second input, expected to be convertible to an integer.
+        corrID (str, optional): A correlation ID for logging.
+                                If None, a new UUID is generated.
+                                If an empty string, no correlation ID prefix is used in logs.
+
+    Returns:
+        int: The sum of the two numbers if conversion and addition are successful,
+             otherwise None.
+    """
+    effective_corrID = None
+    log_prefix = ""
+    error_log_prefix = ""
+
+    # Determine the effective correlation ID and log prefixes based on corrID input
+    if corrID is None:
+        effective_corrID = str(uuid.uuid4())
+        log_prefix = f"{effective_corrID} - "
+        error_log_prefix = f"correlation_ID:{effective_corrID} "
+    elif corrID == '':
+        # If corrID is an empty string, no prefix is used for logs or error messages.
+        effective_corrID = ''
+        log_prefix = ""
+        error_log_prefix = ""
+    else:
+        effective_corrID = corrID
+        log_prefix = f"{effective_corrID} - "
+        error_log_prefix = f"correlation_ID:{effective_corrID} "
+    
+    # Log the initial function call and attempt to convert inputs
+    logging.info(f"{log_prefix}Function add_two_numbers called with num1={num1}, num2={num2}.")
+    logging.info(f"{log_prefix}Attempting to convert inputs to integers.")
+
+    try:
+        # Attempt to convert both inputs to integers.
+        # int() raises ValueError for invalid string formats (e.g., 'hello', '', '3.14', '0xFF')
+        # and TypeError for non-string/non-numeric types like None.
+        int_num1 = int(num1)
+        int_num2 = int(num2)
+    except (ValueError, TypeError):
+        # FIX: Catch both ValueError and TypeError here.
+        # The original behavior for `None` inputs resulted in a generic "An unexpected error occurred: ... not 'NoneType'" message,
+        # while other non-convertible inputs (like 'hello') correctly triggered the "Value Error: Failed to convert..." message.
+        # By catching TypeError alongside ValueError, we ensure that `None` inputs (and any other TypeErrors during int() conversion)
+        # also produce the consistent custom "Value Error: Failed to convert..." message, as suggested by the error context.
+        logging.error(f"{error_log_prefix}Value Error: Failed to convert one or both inputs to integers.")
+        return None
+    except Exception as e:
+        # Catch any other truly unexpected exceptions that might occur during conversion.
+        logging.error(f"{error_log_prefix}An unexpected error occurred: {e}")
+        return None
+
+    # If conversion is successful, perform the addition and log the result
+    result = int_num1 + int_num2
+    logging.info(f"{log_prefix}Successfully added {int_num1} and {int_num2}. Result: {result}")
+    return result
