@@ -26,6 +26,9 @@ def add_two_numbers(num1, num2, corrID=None):
 
     try:
         # Attempt to convert inputs to integers
+        # int(None) raises a TypeError, not a ValueError.
+        # We need to catch both ValueError (e.g., int('abc')) and TypeError (e.g., int(None))
+        # to gracefully handle all cases where inputs cannot be converted to numbers.
         num1_int = int(num1)
         num2_int = int(num2)
     
@@ -33,12 +36,11 @@ def add_two_numbers(num1, num2, corrID=None):
         result = num1_int + num2_int
         logging.info(f'{info_prefix}Successfully added {num1_int} and {num2_int}. Result: {result}')
         return result
-    except ValueError:
+    except (ValueError, TypeError): # Corrected to catch both ValueError and TypeError
         # Log the error in the specified format and return None to indicate failure
         logging.error(f'{error_prefix}Value Error: Failed to convert one or both inputs to integers.')
         return None
     except Exception as e:
-        # Catch any other unexpected errors during conversion or addition
+        # Catch any other truly unexpected errors during conversion or addition
         logging.error(f'{error_prefix}An unexpected error occurred: {e}')
         return None
-
