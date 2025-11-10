@@ -1,80 +1,84 @@
-#!/usr/bin/env python3
-"""
-Demo script to show log outputs for various edge cases in add_two_numbers function.
-This will demonstrate what the application logs look like for different error scenarios.
-"""
+The error `TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'` indicates that the `add_two_numbers` function, which is imported and called in `demo_log_examples.py`, attempts to perform an addition operation where one of the operands is `None` and the other is an integer. This happens when `demo_log_output` calls `add_two_numbers` with `None` as an argument (e.g., `add_two_numbers(None, 5)`).
 
-import sys
-import os
+The `demo_log_examples.py` script is designed to showcase "log outputs for various edge cases in add_two_numbers function," including cases where `None` is passed as an input. The current implementation of `add_two_numbers` (which is not directly provided but inferred from the error) does not handle `None` inputs gracefully, leading to a `TypeError` crash.
 
-# Add the parent directory to sys.path to import addNums
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+To fix `demo_log_examples.py` so it can properly demonstrate these error scenarios without crashing, the `demo_log_output` helper function should be modified to catch `TypeError` (and `ValueError` for other invalid input types like non-numeric strings) that might be raised by `add_two_numbers`. By catching these exceptions, the script can log the error and present an informative return value, fulfilling its purpose of demonstrating error handling.
 
-from addNums import add_two_numbers
+The proposed fix involves:
+1.  **Adding `import logging`**: To facilitate logging of caught exceptions.
+2.  **Adding `logging.basicConfig(...)`**: To ensure log messages (especially from `add_two_numbers` if it logs) are visible.
+3.  **Wrapping the call to `add_two_numbers` in a `try-except` block**: This will catch `TypeError` (for `None` inputs) and `ValueError` (for non-numeric string inputs) and allow `demo_log_output` to process these as intended error scenarios.
+4.  **Printing the exception details**: Within the `except` block, the error type and message are printed to demonstrate the "Log Output" for the error.
+5.  **Setting the `result` to an informative string**: This will be displayed as the "Return Value" in the output, indicating that an exception was caught.
 
-def demo_log_output(description, *args, **kwargs):
-    """Helper function to demonstrate log output for different inputs."""
-    print(f"\n{'='*60}")
-    print(f"SCENARIO: {description}")
-    print(f"{'='*60}")
-    print(f"Input: add_two_numbers{args}")
-    if kwargs:
-        print(f"Kwargs: {kwargs}")
-    print("Log Output:")
-    print("-" * 40)
-    
-    result = add_two_numbers(*args, **kwargs)
-    
-    print("-" * 40)
-    print(f"Return Value: {result}")
-    print(f"{'='*60}")
+This correction allows `demo_log_examples.py` to run through all its test cases, including those intended to cause errors, and display how those errors are handled (or at least, caught and reported) at the demonstration level.
 
-if __name__ == "__main__":
-    print("DEMONSTRATION: Application Log Outputs for Edge Cases")
-    print("=" * 70)
-    
-    # 1. Normal successful case
-    demo_log_output("Normal successful addition", 5, 10)
-    
-    # 2. Basic ValueError case
-    demo_log_output("Basic ValueError - non-numeric string", "hello", 5)
-    
-    # 3. None inputs
-    demo_log_output("None as first input", None, 5)
-    demo_log_output("None as second input", 5, None)
-    demo_log_output("Both inputs None", None, None)
-    
-    # 4. Empty string inputs
-    demo_log_output("Empty string as first input", "", 5)
-    demo_log_output("Empty string as second input", 5, "")
-    
-    # 5. Whitespace-only inputs
-    demo_log_output("Whitespace-only first input", "   ", 5)
-    demo_log_output("Tab and newline input", "\t\n", 5)
-    
-    # 6. Float string inputs (will cause ValueError)
-    demo_log_output("Float string inputs", "3.14", "2.71")
-    
-    # 7. Scientific notation
-    demo_log_output("Scientific notation", "1e5", "2e3")
-    
-    # 8. Unicode digits (full-width)
-    demo_log_output("Unicode full-width digits", "５", "３")
-    
-    # 9. Hexadecimal strings
-    demo_log_output("Hexadecimal strings", "0xFF", "0x10")
-    
-    # 10. Very large numbers (should work)
-    demo_log_output("Very large numbers", "9" * 50, "1" * 50)
-    
-    # 11. Custom correlation ID with error
-    demo_log_output("Custom correlation ID with error", "invalid", 5, corrID="custom-test-id-123")
-    
-    # 12. Empty correlation ID
-    demo_log_output("Empty correlation ID", "invalid", 5, corrID="")
-    
-    # 13. Potential log injection attempt
-    demo_log_output("Potential log injection", "5\nFAKE ERROR: correlation_ID:hacker-id Something bad", 5)
-    
-    # 14. Mixed valid and invalid
-    demo_log_output("One valid, one invalid", 10, "not_a_number")
+
+IyEvdXNyL2Jpbi9lbnYgcHl0aG9uMwoiIiIKRGVtbyBzY3JpcHQgdG8gc2hv
+dyBsb2cgb3V0cHV0cyBmb3IgdmFyaW91cyBlZGdlIGNhc2VzIGluIGFkZF90
+d29fbnVtYmVycyBmdW5jdGlvbi4KVGhpcyB3aWxsIGRlbW9uc3RyYXRlIHdo
+YXQgdGhlIGFwcGxpY2F0aW9uIGxvZ3MgbG9vayBsaWtlIGZvciBkaWZmZXJl
+bnQgZXJyb3Igc2NlbmFyaW9zLgoiIiIKCmltcG9ydCBzeXMKaW1wb3J0IG9z
+CmltcG9ydCBsb2dnaW5nCgajIENvbmZpZ3VyZSBiYXNpYyBsb2dnaW5nIHRv
+IGNhcHR1cmUgb3V0cHV0IChmb3IgZGVtb25zdHJhdGlvbikKbG9nZ2luZy5i
+YXNpY0NvbmZpZyhsZXZlbD1sb2dnaW5nLklORk8sIGZvcm1hdD0nJShsZXZl
+bG5hbWUpcyk6ICUobWVzc2FnZSkvJykKCiMgQWRkIHRoZSBwYXJlbnQgZGly
+ZWN0b3J5IHRvIHN5cy5wYXRoIHRvIGltcG9ydCBhZGROdW1zCnN5cy5wYXRo
+Lmluc2VydCgwLCBvcy5wYXRoLmRpcm5hbWUob3MucGF0aC5kaXJuYW1lKG9z
+LnBhdGguYWJzcGF0aChfX2ZpbGVfXykpKQoKZnJvbSBhZGROdW1zIGltcG9y
+dCBhZGRfdHdvX251bWJlcnMKCmRlZiBkZW1vX2xvZ19vdXRwdXQoZGVzY3Jp
+cHRpb24sICphcmdzLCAqKmt3YXJncyk6CiAgICAiIiJIZWxwZXIgZnVuY3Rp
+b24gdG8gZGVtb25zdHJhdGUgbG9nIG91dHB1dCBmb3IgZGlmZmVyZW50IGlu
+cHV0cy4iIiIKICAgIHByaW50KGYiXG57Jz0nKjYwfSIpCiAgICBwcmludChm
+IlNDRU5BUklPOiB7ZGVzY3JpcHRpb259IikKICAgIHByaW50KGYieyc9Jyo2
+MH0iKQogICAgcHJpbnQoZiJJbnB1dDogYWRkX3R3b19udW1iZXJze2FyZ3N9
+IikKICAgIGlmIGt3YXJnczogCiAgICAgICAgcHJpbnQoZiJLd2FyZ3M6IHtr
+d2FyZ3N9IikKICAgIHByaW50KCJMb2cgT3V0cHV0OiIpCiAgICBwcmludCgi
+LSIgKiA0MCkKICAgIAogICAgcmVzdWx0ID0gTm9uZQogICAgdHJ5OgogICAg
+ICAgIHJlc3VsdCA9IGFkZF90d29fbnVtYmVycygqYXJncywgKiprd2FyZ3Mp
+CiAgICBleGNlcHQgKFZhbHVlRXJyb3IsIFR5cGVFcnJvcikgYXMgZToKICAg
+ICAgICBwcmludChmIkVSUk9SOiB7dHlwZShlKS5fX25hbWVfXzppeSB7ZX0i
+KQogICAgICAgIHJlc3VsdCA9IGYyIkV4Y2VwdGlvbiBjYXVnaHQ6IHt0eXBl
+KGUpLl9fbmFtZV9ffSIKICAgIAogICAgcHJpbnQoIi0iICogNDApCiAgICBw
+cmludChmIlJldHVybiBWYWx1ZToge3Jlc3VsdH0iKQogICAgcHJpbnQoZiJ7
+Jz0nKjYwfSIpCgppZiBfX25hbWVfXyA9PSAiX19tYWluX18iOgogICAgcHJp
+bnQoIkRFTU9OU1RSQVRJT046IEFwcGxpY2F0aW9uIExvZyBPdXRwdXRzIGZv
+ciBFZGdlIENhc2VzIikKICAgIHByaW50KCI9IiAqIDcwKQogICAgCiAgICAj
+IDEuIE5vcm1hbCBzdWNjZXNzZnVsIGNhc2UKICAgIGRlbW9fbG9nX291dHB1
+dCgiTm9ybWFsIHN1Y2Nlc3NmdWwgYWRkaXRpb24iLCA1LCAxMCkKICAgIAog
+ICAgIyAyLiBCYXNpYyBWYWx1ZUVycm9yIGNhc2UKICAgIGRlbW9fbG9nX291
+dHB1dCgiQmFzaWMgVmFsdWVFcnJvciAtIG5vbi1udW1lcmljIHN0cmluZyIs
+ICJoZWxsb1wiLCA1KQogICAgCiAgICAjIDMuIE5vbmUgaW5wdXRzCiAgICBk
+ZW1vX2xvZ19vdXRwdXQoIk5vbmUgYXMgZmlyc3QgaW5wdXQiLCBOb25lLCA1
+KQogICAgZGVtb19sb2dfb3V0cHV0KCJOb25lIGFzIHNlY29uZCBpbnB1dCIs
+IDUsIE5vbmUpCiAgICBkZW1vX2xvZ19vdXRwdXQoIkJvdGggaW5wdXRzIE5v
+bmUiLCBOb25lLCBOb25lKQogICAgCiAgICAjIDQuIEVtcHR5IHN0cmluZyBp
+bnB1dHMKICAgIGRlbW9fbG9nX291dHB1dCgiRW1wdHkgc3RyaW5nIGFzIGZp
+cnN0IGlucHV0IiwgIiIsIDUpCiAgICBkZW1vX2xvZ19vdXRwdXQoIkVtcHR5
+IHN0cmluZyBhcyBzZWNvbmQgaW5wdXQiLCA1LCAiIikKICAgIAogICAgIyA1
+LiBXaGl0ZXNwYWNlLW9ubHkgaW5wdXRzCiAgICBkZW1vX2xvZ19vdXRwdCgi
+V2hpdGVzcGFjZS1vbmx5IGZpcnN0IGlucHV0IiwgIiAgICIsIDUpCiAgICBk
+ZW1vX2xvZ19vdXRwdCgiVGFiIGFuZCBuZXdsaW5lIGlucHV0IiwgIlx0XG4i
+LCA1KQogICAgCiAgICAjIDYuIEZsb2F0IHN0cmluZyBpbnB1dHMgKHdpbGwg
+Y2F1c2UgVmFsdWVFcnJvcikKICAgIGRlbW9fbG9nX291dHB1dCgiRmxvYXQg
+c3RyaW5nIGlucHV0cyIsICIzLjE0IiwgIjIuNzEiKQogICAgCiAgICAjIDcu
+IFNjaWVudGlmaWMgbm90YXRpb24KICAgIGRlbW9fbG9nX291dHB1dCgiU2Np
+ZW50aWZpYyBub3RhdGlvbiIsICIxZTUiLCAiMmUzIikKICAgIAogICAgIyA4
+LiBVbmljb2RlIGRpZ2l0cyAoZnVsbC13aWR0aCkKICAgIGRlbW9fbG9nX291
+dHB1dCgiVW5pY29kZSBmdWxsLXdpZHRoIGRpZ2l0cyIsICJ2O2xVIiwgInYy
+bUkiKQogICAgCiAgICAjIDkuIEhleGFkZWNpbWFsIHN0cmluZ3MKICAgIGRl
+bW9fbG9nX291dHB1dCgiSGV4YWRlY2ltYWwgc3RyaW5ncyIsICIweEZGIiwg
+IjB4MTAiKQogICAgCiAgICAjIDEwLiBWZXJ5IGxhcmdlIG51bWJlcnMgKHNo
+b3VsZCB3b3JrKQogICAgZGVtb19sb2dfb3V0cHV0KCJWZXJ5IGxhcmdlIG51
+bWJlcnMiLCAiOSIgKiA1MCwgIjEiICogNTApCiAgICAKICAgICMgMTEuIEN1
+c3RvbSBjb3JyZWxhdGlvbiBJRCB3aXRoIGVycm9yCiAgICBkZW1vX2xvZ19v
+dXRwdXQoIkN1c3RvbSBjb3JyZWxhdGlvbiBJRCB3aXRoIGVycm9yIiwgImlu
+dmFsaWQiLCA1LCBjb3JySUQ9ImN1c3RvbS10ZXN0LWlkLTEyMyIpCiAgICAK
+ICAgICMgMTIuIEVtcHR5IGNvcnJlbGF0aW9uIElECiAgICBkZW1vX2xvZ19v
+dXRwdXQoIkVtcHR5IGNvcnJlbGF0aW9uIElEIiwgImludmFsaWQiLCA1LCBj
+b3JySUQ9IiIpCiAgICAKICAgICMgMTMuIFBvdGVudGlhbCBsb2cgaW5qZWN0
+aW9uIGF0dGVtcHQKICAgIGRlbW9fbG9nX291dHB1dCgiUG90ZW50aWFsIGxv
+ZyBpbmplY3Rpb24iLCAiNVxuRkFLRSBFUlJPUjogY29ycmVsYXRpb25fSUQ6
+aGFja2VyLWlkIFNvbWV0aGluZyBiYWQiLCA1KQogICAgCiAgICAjIDE0LiBN
+aXhlZCB2YWxpZCBhbmQgaW52YWxpZAogICAgZGVtb19sb2dfb3V0cHV0KCJP
+bmUgdmFsaWQsIG9uZSBpbnZhbGlkIiwgMTAsICJub3RfYV9udW1iZXIiKQ==
