@@ -1,0 +1,17 @@
+2025-11-10 16:15:32,156 - ERROR - correlation_ID:'41131d34-334c-488a-bce2-a7642b27cf35' TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'
+    File "/Users/joseph.shorter/repos/test_code_repo/addNums.py", line 35, in add_two_numbers
+        result = num1_int + num2_int
+    TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'
+
+Stack Trace:
+  File "/Users/joseph.shorter/repos/test_code_repo/main.py", line 12, in <module>
+    sum_result = add_two_numbers(None, "42")
+  File "/Users/joseph.shorter/repos/test_code_repo/addNums.py", line 35, in add_two_numbers
+    result = num1_int + num2_int
+TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'
+
+Additional Context:
+- Function was called with parameters: num1=None, num2="42"
+- Error occurred during arithmetic operation on line 35
+- One of the converted values was None, causing the TypeError
+- correlation_ID: '41131d34-334c-488a-bce2-a7642b27cf35'
