@@ -1,9 +1,9 @@
 # Software Licensing & Intellectual Property Standards
 
-**Effective Date:** October 26, 2023
+**Effective Date:** 2024-07-30
 **Owner:** Legal & Engineering Leadership
 
-This document defines the strict protocols regarding the creation, usage, and protection of software assets within this repository. It serves as a binding guideline for all employees, contractors, and third-party vendors contributing to Core Utility Library.
+This document defines the strict protocols regarding the creation, usage, and protection of software assets within this repository. It serves as a binding guideline for all employees, contractors, and third-party vendors contributing to this repository.
 
 ---
 
@@ -20,6 +20,11 @@ This includes, but is not limited to:
 * UI/UX Design Systems and component libraries.
 * Internal API schemas and data structures.
 * Infrastructure as Code (Terraform/Helm) configurations.
+
+
+
+[Image of intellectual property protection concept]
+
 
 ---
 
