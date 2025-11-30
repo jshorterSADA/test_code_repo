@@ -1,101 +1,105 @@
-# Application Interface Guide (v1)
+# Application Interface Guide (API v1)
 
-Welcome to the **Numerical Operations Module** documentation. This module provides **fundamental numerical operations and robust error logging for internal Python applications**.
+Welcome to the Internal Arithmetic Utility documentation. This documentation describes the interface for an internal Python utility designed for performing basic arithmetic operations with robust logging.
 
 ## Introduction
 
-This module exposes programmatic functions designed for direct integration into Python applications. It does not follow RESTful conventions, nor does it operate over HTTP. Data is passed directly via function arguments, and results are returned as standard Python types.
+This codebase primarily consists of a local Python function and **does not expose a RESTful API** or return data in **JSON** format directly as a network service. It is designed as an internal component.
 
-> **Module Usage**
-> ```python
-> import addNums
-> # Use functions like: addNums.add_two_numbers(...)
+> **Base URL**
+> ```
+> N/A - This codebase does not expose a network API.
 > ```
 
 ---
 
-## Functions
+## Authentication & Web3 Security
 
-### `add_two_numbers`
+The provided codebase (`addNums.py`) implements a local Python function and does not expose a network API. Thus, authentication mechanisms like API Keys or Cryptographic Signatures are not applicable. Similarly, Web3 security concerns such as Replay Protection, Chain ID Validation, or RPC Integrity are not relevant for this local utility.
 
-Calculates the sum of two numbers, gracefully handling both integer and string representations.
+-----
+
+## Endpoints
+
+The provided codebase exposes a single Python function, `add_two_numbers`, for local use. It does not offer network-accessible endpoints.
+
+### Function: `add_two_numbers`
+
+This function takes two numbers (integers or string representations) as input and returns their sum. It attempts to convert inputs to integers and logs its operations.
 
 **Function Signature**
-```python
-from typing import Union, Optional
-
-def add_two_numbers(num1: Union[int, str], num2: Union[int, str], corrID: Optional[str] = None) -> int:
-```
-
-**Description**
-This function takes two numbers (integers or string representations) as input and returns their sum. It attempts to convert inputs to integers. If conversion fails, it raises a `ValueError`. All operations are logged with an optional correlation ID for traceability.
+`add_two_numbers(num1, num2, corrID=None)`
 
 **Parameters**
 | Parameter | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
-| `num1` | `int` or `str` | Yes | The first number to be added. If a string, it must be convertible to an an integer. |
-| `num2` | `int` or `str` | Yes | The second number to be added. If a string, it must be convertible to an an integer. |
-| `corrID` | `str` | No | An optional, unique identifier for correlating log messages. If omitted, a default internal `correlation_ID` is used (default: `41131d34-334c-488a-bce2-a7642b27cf35`). |
+| `num1` | string or int | Yes | The first number to add. |
+| `num2` | string or int | Yes | The second number to add. |
+| `corrID` | string | No | An optional correlation ID for logging purposes. If not provided, a default internal ID is used. |
 
-**Returns**
-`int` - The integer sum of `num1` and `num2`.
-
-**Example Usage**
+**Example Usage (Python)**
 
 ```python
-import logging
-from addNums import add_two_numbers # Assuming addNums.py is accessible in the Python path
+import addNums
 
-# Configure logging to observe the function's internal messages
-logging.basicConfig(level=logging.INFO, format='%(message)s')
+# Example 1: With integers and custom correlation ID
+result1 = addNums.add_two_numbers(10, 5, "my-session-123")
+# Logs: my-session-123 - Function `add_two_numbers` called with num1=10, num2=5.
+# Logs: my-session-123 - Attempting to convert inputs to integers.
+# Logs: my-session-123 - Successfully added 10 and 5. Result: 15
+print(result1) # Output: 15
 
-# Example 1: Adding integers
-result1 = add_two_numbers(5, 7)
-print(f"Result 1: {result1}")
-# Expected log output (using default correlation ID from addNums.py):
-# 41131d34-334c-488a-bce2-a7642b27cf35 - Function `add_two_numbers` called with num1=5, num2=7.
-# 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers.
-# 41131d34-334c-488a-bce2-a7642b27cf35 - Successfully added 5 and 7. Result: 12
-# Output: Result 1: 12
+# Example 2: With string representations and default correlation ID
+result2 = addNums.add_two_numbers("20", "7")
+# Logs: 41131d34-334c-488a-bce2-a7642b27cf35 - Function `add_two_numbers` called with num1=20, num2=7.
+# Logs: 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers.
+# Logs: 41131d34-334c-488a-bce2-a7642b27cf35 - Successfully added 20 and 7. Result: 27
+print(result2) # Output: 27
+```
 
-# Example 2: Adding strings convertible to integers with a custom correlation ID
-result2 = add_two_numbers("10", "20", corrID="my-custom-trace-001")
-print(f"Result 2: {result2}")
-# Expected log output:
-# my-custom-trace-001 - Function `add_two_numbers` called with num1=10, num2=20.
-# my-custom-trace-001 - Attempting to convert inputs to integers.
-# my-custom-trace-001 - Successfully added 10 and 20. Result: 30
-# Output: Result 2: 30
+**Return Value**
 
-# Example 3: Invalid input (will raise ValueError)
-try:
-    add_two_numbers("five", 7, corrID="invalid-input-test")
-except ValueError as e:
-    print(f"Caught expected error: {e}")
-# Expected log output before the exception is raised:
-# invalid-input-test - Function `add_two_numbers` called with num1=five, num2=7.
-# invalid-input-test - Attempting to convert inputs to integers.
-# Output: Caught expected error: invalid literal for int() with base 10: 'five'
+Returns an integer representing the sum of `num1` and `num2`.
+
+-----
+
+## Errors
+
+Since this is a local Python function and not a network API, standard HTTP status codes are not applicable. Errors will manifest as Python exceptions.
+
+| Type | Description |
+| :--- | :--- |
+| `ValueError` | Raised if `num1` or `num2` cannot be successfully converted to an integer. The current implementation does not explicitly catch this and will cause the program to terminate if unhandled by the calling code. |
+
+**Example of an unhandled `ValueError`:**
+
+```python
+import addNums
+
+# This will raise a ValueError because "abc" cannot be converted to int
+# and is not explicitly handled within the add_two_numbers function.
+addNums.add_two_numbers("abc", 5, "error-test")
+```
+
+**Logged Error Format (if an error were caught and logged by the function):**
+
+The `add_two_numbers` function is configured to log errors with a specific prefix:
+
+```
+correlation_ID:your_correlation_id An error occurred: details of the error
+```
+
+For instance, if `ValueError` was caught and logged:
+
+```
+correlation_ID:error-test An error occurred: invalid literal for int() with base 10: 'abc'
 ```
 
 -----
 
-## Error Handling
+## Webhooks
 
-The `add_two_numbers` function reports issues primarily by raising standard Python exceptions. Detailed diagnostic messages are also emitted via the `logging` module, incorporating a correlation ID for tracing.
+Webhooks are mechanisms for providing real-time information via HTTP callbacks. The provided codebase is a local utility and does not include any webhook functionality.
 
-*   **`ValueError`**: This exception is raised if either `num1` or `num2` cannot be successfully converted into an integer. For instance, providing a non-numeric string (e.g., `"abc"`) or a floating-point string (e.g., `"3.14"`) will result in a `ValueError`.
-
-**Logging for Traceability**
-All informational and error-related events within the function are logged using the configured Python `logging` module. Each log entry is prefixed with a correlation ID (either the provided `corrID` or the default internal `41131d34-334c-488a-bce2-a7642b27cf35`), facilitating debugging and tracing across system components.
-
-**Log Format Example (Informational Messages)**
 ```
-<correlation_ID> - Function `add_two_numbers` called with num1=X, num2=Y.
-<correlation_ID> - Attempting to convert inputs to integers.
-<correlation_ID> - Successfully added X and Y. Result: Z
-```
-(Where `<correlation_ID>` is either the provided `corrID` or `41131d34-334c-488a-bce2-a7642b27cf35`.)
-
-> [\!NOTE]
-> The function itself raises `ValueError` directly on invalid input conversion. While the `error_prefix` is prepared for `logging.error` calls within the function's scope, the current implementation only actively utilizes `logging.info` before a `ValueError` is potentially raised. It is the responsibility of the calling application to catch these exceptions and log them as appropriate for comprehensive error reporting.
+N/A - This codebase does not implement webhooks.

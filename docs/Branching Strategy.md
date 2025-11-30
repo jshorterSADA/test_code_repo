@@ -73,8 +73,8 @@ Used to prepare a new production version (QA, documentation, version bumping).
     ```
 2.  **Stabilize:** Only bug fixes and documentation updates are allowed here. No new logic.
 3.  **Merge:**
-    *   Merge into `main` (triggers production deployment).
-    *   Merge back into `develop` (to ensure fixes are saved for the future).
+      * Merge into `main` (triggers production deployment).
+      * Merge back into `develop` (to ensure fixes are saved for the future).
 4.  **Tag:** strictly follow Semantic Versioning.
     ```bash
     git tag -a v1.2.0 -m "Production Release v1.2.0"
@@ -104,9 +104,9 @@ To maintain code quality and auditability (crucial for Web3 security), all PRs m
 
 Use [Conventional Commits](https://www.conventionalcommits.org/) structure:
 
-*   `feat: allow user to stake tokens`
-*   `fix: prevent underflow in relay service`
-*   `chore: update dependency versions`
+  * `feat: allow user to stake tokens`
+  * `fix: prevent underflow in relay service`
+  * `chore: update dependency versions`
 
 ### Description Template
 
@@ -130,8 +130,8 @@ Link to JIRA ticket or GitHub Issue.
 
 We enforce specific checks locally before you can commit or push.
 
-*   **`pre-commit`**: Runs linting (ESLint/Prettier) and unit tests on staged files.
-*   **`commit-msg`**: Validates that your commit message follows the `type: subject` format.
+  * **`pre-commit`**: Runs linting (ESLint/Prettier) and unit tests on staged files.
+  * **`commit-msg`**: Validates that your commit message follows the `type: subject` format.
 
 > If you need to bypass hooks for a work-in-progress save (not recommended), use the `--no-verify` flag.
 

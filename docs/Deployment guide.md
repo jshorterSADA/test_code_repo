@@ -1,139 +1,139 @@
 # Deployment Guide (GCP)
 
-This document outlines the infrastructure architecture and deployment procedures for the "Number Addition Service" application on Google Cloud Platform (GCP).
+This document outlines potential infrastructure architecture and deployment considerations for the `addNums.py` utility on Google Cloud Platform (GCP). Given its current form as a standalone Python script, much of the sophisticated infrastructure detailed below would typically be applied if `addNums.py` were integrated into a larger containerized application or deployed as a serverless function.
 
 ## 1. Infrastructure Overview
 
-Our infrastructure is defined as code (IaC) using **Terraform** and deployed via **GitHub Actions**. We utilize a containerized architecture to ensure consistency between development and production.
+The `addNums.py` script is a simple Python function. If it were to be containerized and deployed as a microservice, our infrastructure would ideally be defined as code (IaC) using **Terraform** and deployed via **GitHub Actions**. This would ensure consistency and automation.
 
-> **Note on Codebase:** The provided `addNums.py` script is a standalone Python function. For deployment to Cloud Run as a web service, it would need to be wrapped in a lightweight web framework (e.g., Flask, FastAPI) and containerized with a `Dockerfile`. The infrastructure described below assumes these additional components are in place.
-
-### Core Components
+### Core Components (Applicable if containerized as a service)
 | Service | Purpose |
 | :--- | :--- |
-| **Cloud Run** | Serverless container execution for the Python service. |
-| **Artifact Registry** | Storage for Docker container images of the service. |
-| **Secret Manager** | Secure storage for sensitive configuration (not currently used by `addNums.py` but available for future needs). |
+| **Cloud Run** | Serverless container execution (if `addNums.py` were wrapped in a web framework). |
+| **Cloud SQL** | Not applicable; `addNums.py` has no database dependencies. |
+| **Artifact Registry** | Storage for Docker container images (if `addNums.py` were containerized). |
+| **Secret Manager** | Not applicable; `addNums.py` currently uses no external secrets. |
+| **Cloud Load Balancing** | Not applicable; `addNums.py` is not a web service unless integrated into one. |
 
 ---
 
 ## 2. Environments
 
-We maintain strict isolation between environments to prevent accidental impact on live users.
+For a standalone script like `addNums.py`, the concept of distinct environments (staging/production) is less directly applicable. However, if this utility were integrated into a larger application, environment isolation would be crucial.
 
-> **Project Mapping**
-> *   **Staging:** `number-addition-staging-XXXXXX` (Deploys from `develop` branch)
-> *   **Production:** `number-addition-prod-XXXXXX` (Deploys from `main` branch)
+> **Project Mapping (Hypothetical if integrated into a larger service)**
+> * **Staging:** `add-nums-staging-gcp` (Deploys from `develop` branch)
+> * **Production:** `add-nums-prod-gcp` (Deploys from `main` branch)
 
 ---
 
 ## 3. Prerequisites
 
-Before attempting a manual deployment or infrastructure update, ensure you have:
+Before attempting a manual deployment or infrastructure update (if `addNums.py` were part of a larger system), ensure you have:
 
-1.  **GCP Access:** IAM role `Editor` or `Cloud Run Admin` on the target project.
+1.  **GCP Access:** IAM role `Editor` or `Cloud Run Admin` on the target project (if deploying to Cloud Run).
 2.  **CLI Tools:** Installed and authenticated locally.
     ```bash
     gcloud auth login
-    gcloud config set project [PROJECT_ID]
+    gcloud config set project [ADD_NUMS_GCP_PROJECT_ID]
     ```
-3.  **Terraform:** Version `1.5.0+` installed (if modifying infrastructure).
+3.  **Terraform:** Version `1.5.0+` installed (if modifying surrounding infrastructure).
 
 ---
 
 ## 4. Deployment Pipeline (CI/CD)
 
-Automated deployments are triggered via GitHub Actions. No manual deployments should occur unless there is a critical outage of the CI system.
+The `addNums.py` script is a simple utility and does not inherently have a CI/CD pipeline. If it were containerized and exposed as a microservice (e.g., via Flask or FastAPI) and deployed to Cloud Run, an automated pipeline would be essential.
 
-> **Note on Codebase:** A GitHub Actions workflow file is not present in the provided codebase. The following describes a theoretical pipeline that would be implemented.
-
-### The Pipeline Flow
-1.  **Test:** Unit tests run (if any exist for `addNums.py`).
-2.  **Build:** Docker image built from the `Dockerfile` (containing `addNums.py` and its web wrapper) and tagged with the Commit SHA.
+### The Pipeline Flow (Hypothetical for a containerized service)
+1.  **Test:** Unit tests for `add_two_numbers` would run.
+2.  **Build:** A Docker image containing the script and its dependencies would be built and tagged with the Commit SHA.
 3.  **Push:** Image uploaded to Google Artifact Registry.
-4.  **Deploy:** `gcloud run deploy` updates the Cloud Run service with the new image.
+4.  **Deploy:** `gcloud run deploy` updates the service with the new image.
+5.  **Migrate:** Not applicable; `addNums.py` does not interact with a database.
 
-### Triggering a Deploy
-*   **Staging:** Push code to `develop`.
-*   **Production:** Merge a Release PR into `main`.
+### Triggering a Deploy (Hypothetical for a containerized service)
+* **Staging:** Push code to `develop`.
+* **Production:** Merge a Release PR into `main`.
 
 ---
 
 ## 5. Manual Deployment (Emergency Only)
 
-In the event of a CI/CD failure, use the following steps to manually deploy a revision.
+The `addNums.py` script is currently a standalone Python file. For direct execution, simply run `python addNums.py` (if it had a main execution block). If it were containerized and deployed to Cloud Run, the following manual steps would be used in an emergency.
 
-> **Note on Codebase:** These steps assume a `Dockerfile` exists at the root of your project, which includes `addNums.py` and a web server wrapper (e.g., Flask app).
-
-**Step 1: Build the Container**
+**Step 1: Build the Container (Hypothetical - requires a `Dockerfile`)**
 ```bash
-gcloud builds submit --tag us-central1-docker.pkg.dev/[PROJECT_ID]/number-addition-repo/number-addition-service:latest .
+# Assuming a Dockerfile exists in the root of the project
+gcloud builds submit --tag gcr.io/[ADD_NUMS_GCP_PROJECT_ID]/add-nums-service:latest .
 ```
 
-**Step 2: Deploy to Cloud Run**
+**Step 2: Deploy to Cloud Run (Hypothetical)**
 
 ```bash
-gcloud run deploy number-addition-service \
-  --image us-central1-docker.pkg.dev/[PROJECT_ID]/number-addition-repo/number-addition-service:latest \
+gcloud run deploy add-nums-service \
+  --image gcr.io/[ADD_NUMS_GCP_PROJECT_ID]/add-nums-service:latest \
   --region us-central1 \
   --platform managed \
-  --allow-unauthenticated # Adjust as per security requirements (e.g., --no-allow-unauthenticated)
+  --allow-unauthenticated # Adjust as per security requirements
 ```
 
----
+> [\!WARNING]
+> **Database Migrations**
+> `addNums.py` does not involve database schema updates. This warning is generally applicable for services that do.
+
+-----
 
 ## 6. Managing Secrets
 
 **Never commit `.env` files to Git.**
-All sensitive configuration is injected at runtime via Google Secret Manager.
+The `addNums.py` script does not currently utilize any external secrets or sensitive configuration. If it were to require API keys, credentials, or other sensitive information in the future, these should be managed via Google Secret Manager.
 
-> **Note on Codebase:** The `addNums.py` script currently hardcodes `correlation_ID`. For production, this (or any other configuration) could be dynamically supplied via environment variables, potentially managed by Secret Manager if it becomes sensitive.
+To add a new secret:
 
-To add a new secret (e.g., a new configuration value):
-
-1.  Navigate to **Security > Secret Manager** in the GCP Console.
-2.  Create a new secret (e.g., `APP_CONFIG_KEY`).
-3.  Reference it in your Cloud Run service configuration via the GCP Console or `gcloud` commands, or in `terraform/main.tf` if using IaC:
+1.  Navigate to **Security \> Secret Manager** in the GCP Console.
+2.  Create a new secret (e.g., `EXTERNAL_API_KEY`).
+3.  Reference it in the Cloud Run service environment variables (if applicable):
     ```yaml
-    # Cloud Run Env Var Reference (YAML for Cloud Run service config)
-    - name: APP_CONFIG_KEY
+    # Cloud Run Env Var Reference
+    - name: EXTERNAL_API_KEY
       valueFrom:
         secretKeyRef:
-          name: APP_CONFIG_KEY
+          name: EXTERNAL_API_KEY
           key: latest
     ```
 
----
+-----
 
 ## 7. Rollback Procedure
 
-If a deployment introduces a critical bug, rollback immediately to the previous stable revision.
+For the `addNums.py` script as a standalone file, a "rollback" would involve replacing the file on the execution environment. If `addNums.py` were deployed as a Cloud Run service, the standard rollback procedures would apply.
 
-**Method A: via GCP Console**
+**Method A: via GCP Console (Hypothetical for Cloud Run)**
 
-1.  Go to **Cloud Run** > **number-addition-service** > **Revisions**.
+1.  Go to **Cloud Run** \> **add-nums-service** \> **Revisions**.
 2.  Locate the previous healthy revision (Green checkmark).
 3.  Click **"Manage Traffic"** and route 100% to that revision.
 
-**Method B: via CLI**
+**Method B: via CLI (Hypothetical for Cloud Run)**
 
 ```bash
 # 1. List revisions to find the previous one
-gcloud run revisions list --service number-addition-service
+gcloud run revisions list --service add-nums-service
 
 # 2. Rollback traffic
-gcloud run services update-traffic number-addition-service \
+gcloud run services update-traffic add-nums-service \
   --to-revisions=[PREVIOUS_REVISION_ID]=100
 ```
 
----
+-----
 
 ## 8. Verification
 
-After deployment, verify the health of the service:
+Verification steps depend heavily on how `addNums.py` is deployed.
 
-> **Note on Codebase:** A health check endpoint is not present in the provided `addNums.py`. This would be part of the web server wrapper.
-
-*   **Health Check Endpoint:** `https://[SERVICE_URL]/health` (or `/status`) should return `200 OK`.
-*   **Logs:** Check **Cloud Logging** for "Application Startup" or "Error" flags from the `number-addition-service`.
-*   **Latency:** Ensure **Cloud Monitoring** shows latency within P95 thresholds for the service.
+  *   **Standalone Script:** Verify by executing the script locally and checking its output and logs.
+  *   **Cloud Run Service (Hypothetical):**
+      *   **Health Check Endpoint:** If the service has one, e.g., `https://[SERVICE_URL]/health`, it should return `200 OK`.
+      *   **Logs:** Check **Cloud Logging** for service startup messages or any error logs from the `add_two_numbers` function. The script's logging includes a `correlation_ID` for easier tracing.
+      *   **Functionality:** Test the specific endpoint that utilizes the `add_two_numbers` function to ensure correct calculations.
