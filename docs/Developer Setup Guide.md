@@ -1,6 +1,6 @@
 # Developer Setup Guide
 
-**Welcome to the team!** This guide will help you set up your local development environment to contribute to the Simple Python Utility repository. Follow these steps sequentially to ensure a smooth onboarding experience.
+**Welcome to the team!** This guide will help you set up your local development environment to contribute to the Python Number Adder with Logging Example repository. Follow these steps sequentially to ensure a smooth onboarding experience.
 
 ---
 
@@ -11,7 +11,7 @@ Before cloning the repository, ensure your machine has the following tools insta
 ### Required Software
 | Tool | Version | Purpose |
 | :--- | :--- | :--- |
-| **Python** | `v3.9+` (LTS) | Python runtime for scripts. |
+| **Python** | `3.8+` | The runtime for executing the script. |
 | **Git** | `2.3+` | Version control. |
 | **VS Code** | Latest | Recommended IDE (with Python extension). |
 
@@ -23,64 +23,95 @@ Before cloning the repository, ensure your machine has the following tools insta
 We use **SSH** for secure access. Ensure your SSH keys are added to your GitHub account.
 
 ```bash
-git clone git@github.com:Insight-Enterprises/[repo-name].git
-cd [repo-name]
+git clone git@github.com:Insight-Enterprises/python-logging-example.git
+cd python-logging-example
 ```
 
 ### Install Dependencies
-This project currently has no external Python dependencies beyond the standard library.
+This script has no external dependencies beyond the Python standard library. Therefore, no `pip install` command is necessary to run `addNums.py`.
 
 ---
 
 ## 3. Environment Configuration
 
-This utility currently hardcodes configuration directly within the `addNums.py` file (e.g., `correlation_ID`). No external environment variables or `.env` files are required for local execution.
+> **⛔ SECURITY WARNING**
+> Never hardcode sensitive information directly into source files. While the `correlation_ID` in this example is not sensitive, for production applications, all configuration and secrets should be managed externally (e.g., environment variables, a dedicated config service, or a secrets manager).
+
+### Local Environment Variables
+The `addNums.py` script currently has the `correlation_ID` hardcoded. For a more flexible setup, you might consider externalizing such values into environment variables or a configuration file.
+
+Example of how `correlation_ID` could be set via an environment variable (not currently used by the script):
+```bash
+export CORRELATION_ID="a-dynamic-correlation-id"
+```
+To implement this, you would modify `addNums.py` to read `os.getenv('CORRELATION_ID', 'default-id')`.
 
 ---
 
 ## 4. Running the Application
 
-### Executing the Script
-The `addNums.py` file defines a function `add_two_numbers`. To use it, you can import it into another Python script or execute it interactively in a Python interpreter.
+### Run the Script
+This will execute the `addNums.py` script.
 
-Example of interactive execution:
-
-```python
-# Open a Python interpreter in your terminal
-python
-
-# Import the function
-from addNums import add_two_numbers
-
-# Call the function
-result = add_two_numbers(10, 20)
-print(result) # Expected output: 30
-
-result_error = add_two_numbers('a', 20) # This will cause an unhandled ValueError due to current implementation
+```bash
+python addNums.py
 ```
-*Note: The current `addNums.py` lacks an `if __name__ == "__main__":` block for direct script execution and does not gracefully handle non-numeric inputs within the `int()` conversion block.*
+
+To call the `add_two_numbers` function interactively, you can run the script and then define/call the function in a Python shell, or add a main execution block (`if __name__ == "__main__":`) to the script.
+
+Example with direct function call (assuming you modify `addNums.py` to include a main block):
+```python
+# Inside addNums.py, at the end of the file:
+if __name__ == "__main__":
+    print("\n--- Example Calls ---")
+    add_two_numbers(10, 5, "test-call-1")
+    add_two_numbers("20", "15", "test-call-2")
+    # Example of an invalid call (will raise an unhandled ValueError as per current code)
+    # add_two_numbers("abc", 5, "test-call-3")
+```
+Then run:
+```bash
+python addNums.py
+```
 
 ---
 
 ## 5. Testing & Quality Assurance
 
-Currently, no specific testing framework or QA processes are defined for this utility.
-
 ### Run Unit Tests
-No dedicated unit test suite is configured. Consider using `pytest` for future additions to ensure code correctness.
+While no dedicated test suite is provided in the current codebase, for future development, we recommend using `pytest` for unit testing.
+
+```bash
+# Example: Install pytest (if not already installed)
+# pip install pytest
+
+# Example: Run tests (assuming tests are in a 'tests/' directory)
+# pytest
+```
 
 ### Linting & Formatting
-No automated linting or formatting tools (e.g., `flake8`, `black`) are currently configured. Please ensure code adheres to PEP 8 standards and maintain consistent code style manually.
+We enforce code style via `flake8` for linting and `black` for formatting. These can be run manually:
+
+```bash
+# Example: Install linting and formatting tools
+# pip install flake8 black
+
+# Run linting checks
+# flake8 .
+
+# Run auto-formatting
+# black .
+```
 
 ---
 
 ## 6. Workflow & Branching
 
-We follow a standard Gitflow strategy.
+We follow a **Gitflow** strategy. Please refer to the **[Branching Strategy](Branching%20Strategy.md)** document for naming conventions.
 
 *   **Feature Work:** Branch off `develop` (`feature/my-feature`).
 *   **Hotfixes:** Branch off `main` (`hotfix/critical-bug`).
-*   **Pull Requests:** Must pass CI checks (if configured) and receive at least one peer review before merging.
+*   **Pull Requests:** Must pass CI checks and receive at least one peer review before merging.
 
 ---
 
@@ -88,9 +119,10 @@ We follow a standard Gitflow strategy.
 
 **Common Issues:**
 
-*   **`ModuleNotFoundError: No module named 'some_module'`**: Ensure all necessary Python packages are installed (though this project currently has none).
-*   **`SyntaxError: invalid syntax`**: Check for typos, incorrect Python grammar, or missing colons/parentheses.
-*   **`IndentationError: unexpected indent`**: Python relies on consistent indentation. Check your code for mixed spaces/tabs or incorrect indents, especially around `def`, `try`, `except`, `if`, `for`, `while` blocks.
+*   **`python: command not found`**: Ensure Python is installed and its executable is in your system's `$PATH`.
+*   **`No module named ...`**: If you add external dependencies later, ensure they are installed via `pip install -r requirements.txt`.
+*   **`IndentationError`**: Python relies heavily on correct indentation. Check your code for mixed spaces/tabs or incorrect indents.
+*   **Unhandled exceptions**: The `add_two_numbers` function currently has a `try` block but an `except` block is missing to gracefully handle non-numeric inputs. If you input `add_two_numbers("abc", 5)`, it will raise a `ValueError`.
 
 ---
 

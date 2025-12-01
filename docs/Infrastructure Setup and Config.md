@@ -1,102 +1,70 @@
 # Infrastructure Setup & Configuration (GCP)
 
-This document details the architectural standards and setup procedures for provisioning the Simple Python Script infrastructure on Google Cloud Platform.
+This document details the architectural standards and setup procedures for provisioning the infrastructure for the provided codebase on Google Cloud Platform. **Please note:** The provided `addNums.py` codebase is a simple Python script and does not contain any explicit infrastructure definitions, Terraform configurations, or GCP-specific settings. Therefore, this document will outline the general architectural standards as per the template, while noting where the current codebase does not implement these features.
 
-**Philosophy:** We utilize **Immutable Infrastructure**. All resources are provisioned via Terraform. Manual changes in the GCP Console are strictly prohibited (Read-Only Policy), except for emergency break-glass scenarios.
-
-> **Note:** The provided codebase (`addNums.py`) consists of a single Python script and does not define any cloud infrastructure. Therefore, most sections of this guide, which describe Google Cloud Platform and Terraform practices, are not directly applicable to the current codebase but represent our general architectural philosophy for projects that *do* involve cloud infrastructure.
+**Philosophy:** We utilize **Immutable Infrastructure**. All resources are provisioned via Terraform. Manual changes in the GCP Console are strictly prohibited (Read-Only Policy), except for emergency break-glass scenarios. *Note: The provided `addNums.py` script does not define any infrastructure, therefore this philosophy is not directly applicable to the script itself, but rather to the intended environment where such a script might run.*
 
 ---
 
 ## 1. Prerequisites (Local Environment)
 
-For the execution of the provided `addNums.py` script, only a Python interpreter is required.
-There is no `.tool-versions` file or equivalent for version management within this codebase.
+For running the provided `addNums.py` script, the primary prerequisite is a Python execution environment. The script does not utilize or require Google Cloud CLI, Terraform, or Docker directly for its operation.
 
-*   **[Python](https://www.python.org/downloads/):** (v3.x) For executing the Python script.
+*   **[Python 3.x](https://www.python.org/downloads/):** For executing the `addNums.py` script.
 
-The script `addNums.py` does not interact with GCP services or require authentication mechanisms like `gcloud auth login`.
+**Initial Auth**
+*This section is not applicable to the provided codebase as it does not interact with GCP services requiring authentication.*
 
----
+-----
 
 ## 2. Project Topology
 
-The provided codebase (`addNums.py`) is a standalone script and does not include definitions for a multi-project GCP hierarchy or distinct environments (Ops, Staging, Production). The concept of isolated GCP projects for different environments is a standard practice for larger, cloud-deployed applications, but it is not applicable to the current code.
+The provided `addNums.py` codebase does not contain any information or configuration related to a multi-project GCP topology (e.g., project IDs for Ops, Staging, Production environments). Therefore, no project topology can be inferred from the given code.
 
-| Environment | GCP Project ID | Purpose | Access Level |
-| :--- | :--- | :--- | :--- |
-| **Ops / Shared** | *N/A (Not defined in codebase)* | *N/A (Not defined in codebase)* | *N/A (Not defined in codebase)* |
-| **Staging** | *N/A (Not defined in codebase)* | *N/A (Not defined in codebase)* | *N/A (Not defined in codebase)* |
-| **Production** | *N/A (Not defined in codebase)* | *N/A (Not defined in codebase)* | *N/A (Not defined in codebase)* |
-
----
+-----
 
 ## 3. Infrastructure as Code (Terraform)
 
-The provided codebase (`addNums.py`) does not contain any Infrastructure as Code definitions using Terraform. The project does not include a `/terraform` directory or any `.tf` files.
+The provided `addNums.py` codebase does not include any Terraform configurations (`.tf` files) or related IaC modules. The script is a standalone Python file with no infrastructure dependencies defined within the codebase.
 
 ### Directory Structure
-
-```text
-/
-  addNums.py
-```
+*Not applicable, as no Terraform configuration is present.*
 
 ### State Management
+*Not applicable, as no Terraform configuration is present.*
 
-Since no Terraform configurations are present, there is no Terraform state to manage. The concept of a GCS Backend for state storage is not applicable to this codebase.
-
----
+-----
 
 ## 4. Network Configuration
 
-The `addNums.py` script is a local execution script and does not define or interact with any network infrastructure such as Virtual Private Cloud (VPC), Subnets, Cloud NAT, or Private Service Connect for database access. These networking components are crucial for cloud-deployed applications but are not relevant to the standalone script.
+The `addNums.py` script operates as a self-contained unit and does not define or interact with any network configurations such as Virtual Private Clouds (VPCs), subnets, Cloud NAT, or Private Service Connect. Network connectivity is not managed or specified within the provided codebase.
 
-> [\!WARNING]
-> The Web3 note regarding JSON-RPC port restrictions is specific to cloud deployments with RPC nodes and is not applicable to this codebase.
-
----
+-----
 
 ## 5. Configuration Management
 
-The `addNums.py` script does not utilize formal configuration management systems like Terraform variables (`.tfvars`) or Google Secret Manager.
+The `addNums.py` script handles its configuration internally through direct variable assignments (e.g., `correlation_ID`) and uses Python's `logging` module for output. There is no external infrastructure configuration management (like `.tfvars`) or sensitive secret management (like Google Secret Manager) implemented or referenced within the script.
 
 ### Terraform Variables (`.tfvars`)
-
-No Terraform configurations are present, thus `.tfvars` files are not used.
+*Not applicable, as no Terraform configuration is present.*
 
 ### Secret Management
+The `addNums.py` script does not utilize external secret management services like Google Secret Manager. The `correlation_ID` is defined directly within the script.
 
-The script includes a hardcoded `correlation_ID`: `correlation_ID ="41131d34-334c-488a-bce2-a7642b27cf35"`. While this is a configuration item, it is hardcoded directly in the source file, which is not aligned with best practices for sensitive data or dynamic configuration.
-
-There is no integration with Google Secret Manager or any other secret management solution within the provided code. For cloud-native applications, sensitive data should be externalized and managed securely, such as through Google Secret Manager.
-
----
+-----
 
 ## 6. IAM & Security Policies
 
-The `addNums.py` script does not define or interact with Identity and Access Management (IAM) roles, Service Accounts (SA), or Google Cloud Organization Policies. These security mechanisms are fundamental for controlling access and enforcing compliance in a GCP environment but are not part of a simple Python script.
+The `addNums.py` script does not define or imply any IAM roles, service accounts, or organization policies. It is a simple computational script and does not interact with GCP resources in a way that requires specific security policies or permissions.
 
-*   **Service Accounts (SA):** Not applicable as the script runs locally.
-*   **Organization Policies:** Not applicable as no GCP organization policies are defined or enforced by the script.
-
----
+-----
 
 ## 7. "Day 0" Bootstrapping
 
-The "Day 0" bootstrapping steps provided in the template are for initializing a GCP environment for cloud-deployed applications using Terraform. These steps are not applicable to the `addNums.py` script, which is executed locally.
+The concept of "Day 0" bootstrapping for GCP infrastructure is not applicable to the `addNums.py` script, as it does not provision or manage any GCP resources. The script can be run directly in any Python environment.
 
-To "bootstrap" and run the provided script:
-
-1.  **Ensure Python is installed.**
-2.  **Execute the script:**
-    ```bash
-    python addNums.py
-    ```
-    The script contains an example of calling `add_two_numbers` that will produce log output.
-
----
+-----
 
 ## 8. Database Initialization
 
-The `addNums.py` script does not interact with any database, including Cloud SQL. Therefore, steps for database initialization, connection via proxy, or running migrations are not applicable to this codebase.
+The `addNums.py` script does not interact with any databases (e.g., Cloud SQL) or require database initialization. It performs simple arithmetic operations using its input parameters.
