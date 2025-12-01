@@ -1,17 +1,15 @@
-# `addNums.py` - Simple Number Addition Utility
-
-This repository contains a single Python script, `addNums.py`, designed to perform the addition of two numbers. The script prioritizes clear logging and incorporates correlation IDs for traceability, making it suitable for integration into systems requiring detailed operational insights.
+# addNums.py: Simple Number Addition Utility
 
 ## Overview
 
-`addNums.py` exposes a single function, `add_two_numbers`, which takes two inputs, attempts to convert them to integers, and returns their sum. It includes robust logging with dynamic correlation IDs to track the execution flow of each function call.
+This repository contains a single Python script, `addNums.py`, which provides a utility function to add two numbers. The script focuses on demonstrating basic function definition, input type conversion, and structured logging, including the use of correlation IDs for tracing operations.
 
 ## Features
 
-*   **Number Addition:** Core functionality to sum two numerical inputs.
-*   **Input Conversion:** Automatically attempts to convert string representations of numbers to integers.
-*   **Detailed Logging:** Utilizes Python's `logging` module to provide informative messages about function calls, input processing, and results.
-*   **Correlation IDs:** Supports explicit and implicit correlation IDs for tracking individual function executions, crucial for debugging and monitoring in distributed systems.
+*   **Number Addition**: A function to sum two numerical inputs.
+*   **Type Coercion**: Attempts to convert string inputs to integers before addition.
+*   **Structured Logging**: Utilizes Python's `logging` module to output informational messages about function execution.
+*   **Correlation ID Integration**: Supports passing and utilizing a correlation ID to link related log messages across different operations.
 
 ## Getting Started
 
@@ -19,73 +17,88 @@ This repository contains a single Python script, `addNums.py`, designed to perfo
 
 *   Python 3.x
 
-### Usage
+### Installation
 
-To use the `add_two_numbers` function, you can import it into your Python project or run the script directly for testing purposes (though no main execution block is provided in the current script).
+No specific installation steps are required beyond downloading the `addNums.py` file.
 
-#### Example:
+## Usage
+
+To use the `add_two_numbers` function, simply import it into your Python script and call it with two arguments. An optional `corrID` can be provided for logging purposes.
 
 ```python
-import logging
 from addNums import add_two_numbers
 
-# Configure logging if not already done, matching the script's basicConfig
-logging.basicConfig(level=logging.INFO, format='%(message)s')
-
-# Example 1: Basic addition
-print("\n--- Example 1: Basic Addition ---")
+# Example 1: Adding two integers
 result1 = add_two_numbers(5, 3)
-print(f"Result for (5, 3): {result1}") # Expected output: 8
+print(f"Result 1: {result1}")
+# Expected output (logs will also be printed):
+# <current_correlation_ID> - Function `add_two_numbers` called with num1=5, num2=3.
+# <current_correlation_ID> - Attempting to convert inputs to integers.
+# <current_correlation_ID> - Successfully added 5 and 3. Result: 8
+# Result 1: 8
 
-# Example 2: Addition with string numbers
-print("\n--- Example 2: String Numbers ---")
-result2 = add_two_numbers("10", "20")
-print(f"Result for ('10', '20'): {result2}") # Expected output: 30
+# Example 2: Adding two numbers provided as strings
+result2 = add_two_numbers("10", "20", corrID="my-specific-id-123")
+print(f"Result 2: {result2}")
+# Expected output (logs will also be printed):
+# my-specific-id-123 - Function `add_two_numbers` called with num1=10, num2=20.
+# my-specific-id-123 - Attempting to convert inputs to integers.
+# my-specific-id-123 - Successfully added 10 and 20. Result: 30
+# Result 2: 30
 
-# Example 3: Using a custom correlation ID
-print("\n--- Example 3: Custom Correlation ID ---")
-custom_corr_id = "a1b2c3d4-e5f6-7890-1234-567890abcdef"
-result3 = add_two_numbers(15, 7, corrID=custom_corr_id)
-print(f"Result for (15, 7) with custom ID: {result3}") # Expected output: 22
-
-# Example 4: Input that cannot be converted (will raise ValueError)
-print("\n--- Example 4: Invalid Input (will raise ValueError) ---")
+# Example 3: Invalid input (will raise ValueError)
 try:
-    add_two_numbers("hello", 5)
+    add_two_numbers("five", 3)
 except ValueError as e:
-    print(f"Caught expected error: {e}") # Expected: invalid literal for int()
+    print(f"Error caught: {e}")
+# Expected output (logs will also be printed for the function call):
+# <current_correlation_ID> - Function `add_two_numbers` called with num1=five, num2=3.
+# <current_correlation_ID> - Attempting to convert inputs to integers.
+# Error caught: invalid literal for int() with base 10: 'five'
 ```
 
-## Core Functionality
+## Code Details
 
-### `add_two_numbers(num1, num2, corrID=None)`
+### `add_two_numbers(num1, num2, corrID=None)` Function
 
-This function calculates the sum of two inputs after attempting to convert them to integers.
+This function is designed to sum two numbers.
 
-*   **Parameters:**
+*   **Parameters**:
     *   `num1`: The first number. Can be an integer or a string representation of an integer.
     *   `num2`: The second number. Can be an integer or a string representation of an integer.
-    *   `corrID` (optional): A string representing a correlation ID to be used for logging within this function call. If `None` (or not provided), a global default `correlation_ID` from the `addNums.py` script will be used.
+    *   `corrID`: (Optional) A string representing a correlation ID to be used for logging messages generated by this specific function call. If not provided, a globally defined `correlation_ID` is used.
+*   **Returns**:
+    *   `int`: The sum of `num1` and `num2` after conversion to integers.
+*   **Behavior**:
+    *   Attempts to convert both `num1` and `num2` to integers using `int()`.
+    *   Logs informational messages at various stages of execution, including function call, input conversion attempt, and successful addition. Log messages are prefixed with the determined correlation ID.
 
-*   **Return Value:**
-    *   Returns an `int` representing the sum of `num1` and `num2`.
+### Logging
 
-*   **Behavior & Error Handling:**
-    1.  Logs the initiation of the function call with the inputs and the chosen correlation ID.
-    2.  Attempts to convert both `num1` and `num2` to integers using `int()`.
-    3.  If either `num1` or `num2` cannot be converted to an integer (e.g., if they are non-numeric strings or other incompatible types), a `ValueError` will be raised by the `int()` conversion, terminating the function execution.
-    4.  If both inputs are successfully converted, their sum is calculated and returned.
-    5.  Logs the successful addition and the final result.
+The script configures Python's `logging` module to output messages at the `INFO` level. The log format is set to `%(message)s`, which means only the log message content (including the pre-formatted correlation ID) will be printed to standard output.
 
-    **Note on Error Handling:** While the function's docstring indicates graceful handling of unconvertible inputs, the current implementation *directly* calls `int()`, which will raise a `ValueError` for invalid input formats. This means the function does *not* gracefully handle such cases but instead propagates the `ValueError`. Consumers of this function should wrap calls in `try-except ValueError` blocks if robust error handling is required.
+*   **Configuration**:
+    ```python
+    import logging
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
+    ```
+*   **Correlation ID in Logs**:
+    Each log message is prefixed with a correlation ID. For informational messages, the format is `ID - Message`. For error messages (though not present in this function's current error handling), the intended format for the prefix is `correlation_ID:ID Message`.
 
-## Logging & Correlation IDs
+### Error Handling
 
-The script is configured to use Python's standard `logging` module.
+**Important Note**: In the current implementation, the `add_two_numbers` function attempts to convert `num1` and `num2` to integers directly using `int()`. If either input cannot be converted to an integer (e.g., if it's a non-numeric string or `None`), a `ValueError` will be raised and the program will terminate if not caught by the caller. There is no internal `try-except` block within the `add_two_numbers` function to gracefully handle these conversion errors.
 
-*   **Configuration:** Logging is set to `INFO` level, with a format `%(message)s`, ensuring that log entries appear as direct messages.
-*   **Correlation ID (`correlation_ID`):** A global `correlation_ID` is defined at the top of the script. This serves as a default ID for all log messages if no specific `corrID` is provided to `add_two_numbers`.
-*   **Dynamic Correlation:** The `add_two_numbers` function prioritizes a `corrID` provided as an argument. If an argument `corrID` is given, it overrides the global default for that specific function call, allowing for per-request traceability.
-*   **Log Message Format:**
-    *   `INFO` messages include a prefix like `[correlation_ID] - [message]`.
-    *   (Currently, there are no explicit `ERROR` logs within the function, but if added, they would use a format like `correlation_ID:[ID] [message]`.)
+## Configuration
+
+### Global Correlation ID
+
+A global `correlation_ID` variable is defined within `addNums.py`.
+```python
+correlation_ID ="41131d34-334c-488a-bce2-a7642b27cf35"
+```
+This ID is used by `add_two_numbers` if no specific `corrID` is passed to the function. You can modify this value directly in the script if a different default correlation ID is desired.
+
+### Logging Level
+
+The default logging level is `INFO`. This can be adjusted by changing the `level` parameter in `logging.basicConfig()` at the beginning of the script (e.g., to `logging.DEBUG` for more verbose output, or `logging.WARNING` for less).

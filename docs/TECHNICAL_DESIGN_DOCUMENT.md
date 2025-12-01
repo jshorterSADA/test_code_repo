@@ -1,10 +1,10 @@
-# Technical Design Document: Utility Function: `add_two_numbers`
+# Technical Design Document: ML-Powered Conversational Analytics Platform
 
 **Version:** 1.0  
-**Date:** November 13, 2025  
-**Status:** Final  
-**Author(s):** [Your Name/Team]  
-**Client:** [Internal Development Team]
+**Date:** [Current Date, e.g., November 29, 2023]  
+**Status:** Draft  
+**Author(s):** Scribe Agent  
+**Client:** Internal
 
 ---
 
@@ -12,74 +12,70 @@
 
 ### 1.1. Executive Summary
 
-This document details the design and implementation of `add_two_numbers.py`, a core utility function designed for robust numerical addition within larger Python applications. The function provides dependable arithmetic operations, type conversion, and clear, traceable logging using correlation IDs. It is engineered for simplicity, reusability, and maintainability, ensuring that numerical operations are both accurate and auditable.
+This document describes `addNums.py`, a simple, standalone Python utility module designed to safely add two numerical inputs. The primary function, `add_two_numbers`, is intended to handle both integer and string representations of numbers, performing implicit type conversion. It incorporates basic logging to track function calls, input values, and results, leveraging a correlation ID for tracing. While the code comments suggest graceful error handling for type conversion, the current implementation will raise a `ValueError` if non-numeric inputs are provided.
 
-**Business Objective:** To provide a reliable, universally applicable, and well-logged utility for adding two numbers, capable of handling diverse input types while providing clear operational insights.
+**Business Objective:** Provide a robust and traceable utility function for basic arithmetic operations that can be integrated into larger systems requiring numerical summation.
 
-**Problem Statement:** Simple arithmetic operations, when embedded directly in complex logic, can lead to subtle bugs if input types are not rigorously managed. Additionally, debugging numerical issues in distributed systems often requires comprehensive logging with clear contextual identifiers.
+**Problem Statement:** In applications where numerical inputs might originate from various sources (e.g., user input, external APIs) and types are not strictly guaranteed, a utility is needed to attempt type conversion and sum values while providing clear operational logging.
 
-**Solution:** A self-contained Python function that:
-- Accepts two numbers (or their string representations).
-- Safely converts inputs to integers.
-- Gracefully handles non-numeric inputs, logging errors without crashing.
-- Performs the addition and returns the result.
-- Utilizes a configurable correlation ID for all log messages, enabling end-to-end traceability of operations.
+**Solution:** A Python function `add_two_numbers` that:
+- Accepts two inputs (`num1`, `num2`).
+- Attempts to convert inputs to integers.
+- Calculates their sum.
+- Logs its execution with a unique correlation ID.
 
 **Key Outcomes:**
-- **Reliable Arithmetic:** Ensures robust addition regardless of input type (numeric or string-numeric).
-- **Enhanced Debuggability:** Centralized, context-rich logging simplifies troubleshooting.
-- **Code Clarity & Reusability:** Encapsulates common logic, reducing boilerplate code across the application.
-- **Maintainability:** A single, well-defined function simplifies future updates and extensions.
+- **Simplified Addition:** Centralized logic for adding two numbers.
+- **Traceability:** Detailed logging with a correlation ID for each function call.
+- **Foundational Component:** Can serve as a building block for more complex numerical processing.
 
 ### 1.2. Purpose of this Document
 
-This Technical Design Document (TDD) provides a detailed technical overview of the `add_two_numbers.py` utility. It serves as the primary technical reference for understanding, integrating, and maintaining this function within any Python-based system.
+This Technical Design Document (TDD) provides a comprehensive technical overview of the `addNums.py` utility. It serves as the primary technical reference for understanding, maintaining, and extending this component.
 
 This document details:
-- The design of the `add_two_numbers` function, including its input handling and error management.
-- The logging strategy, emphasizing the use of correlation IDs for traceability.
-- Operational considerations for integrating and troubleshooting the utility.
+- The design and implementation of the `add_two_numbers` function.
+- Its logging mechanisms and traceability features.
+- Operational considerations for its use.
 
 **Intended Use Cases:**
-- **Code Review:** Validate the design and implementation against best practices.
-- **Integration:** Provide guidance for developers integrating this function into larger systems.
-- **Maintenance:** Reference for future updates, bug fixes, or enhancements.
-- **Troubleshooting:** Aid in diagnosing issues related to numerical operations or logging.
+- **Code Review:** Understand the function's logic and behavior.
+- **Integration Guide:** How to incorporate `add_two_numbers` into other Python applications.
+- **Troubleshooting:** Guidance on diagnosing and resolving issues related to input types.
 
 ### 1.3. Scope
 
 #### In Scope
-- **`add_two_numbers` Function:** Detailed logic for input conversion, addition, and error handling.
-- **Logging Implementation:** Configuration of the Python `logging` module and custom log message formatting with correlation IDs.
-- **Input Type Management:** Handling of `int` and `str` inputs for numerical conversion.
-- **Error Handling:** Graceful management of non-numeric inputs, logging failures.
+- The `addNums.py` Python module.
+- The `add_two_numbers` function's logic, input handling, and calculation.
+- The logging implementation, including the use of correlation IDs.
+- The current behavior regarding type conversion errors.
 
 #### Out of Scope
-- **External Dependencies:** This utility is self-contained and does not integrate with external systems, databases, or cloud services.
-- **User Interface:** No user interface components are part of this utility.
-- **Database Interactions:** No persistent storage mechanisms are used or designed.
-- **Network Communication:** The function operates locally and does not involve network calls.
-- **Complex Data Structures:** Designed for scalar numeric addition, not for complex data structures or machine learning.
-- **Deployment Automation:** As a single utility file, it relies on standard Python execution, not complex deployment pipelines.
+- **User Interface (UI):** This module has no direct UI.
+- **Database Interactions:** No external data storage is used.
+- **Network Communication:** The module performs no network operations.
+- **Machine Learning (ML):** No ML models or functionality are included.
+- **Google Cloud Platform (GCP) Services:** This module is a standalone Python file and does not directly interact with GCP services, beyond producing logs that could theoretically be ingested by Cloud Logging in a larger system context.
+- **Automated Testing & Deployment:** While crucial for production, specific setup for these is not detailed for this minimal component.
+- **Complex Error Handling:** The current implementation's graceful error handling for non-numeric inputs, as suggested by comments, is noted as absent; the document details its actual `ValueError` raising behavior.
 
 ### 1.4. Target Audience
 
-This document is designed for technical stakeholders responsible for developing, integrating, and maintaining Python applications that utilize this utility:
+This document is designed for technical stakeholders involved in developing, integrating, and maintaining Python applications that may utilize or be similar to this utility:
 
 #### Primary Audience
-- **Software Developers:** Integrating the `add_two_numbers` function into their codebase.
-- **System Architects:** Understanding the design principles and role of the utility.
-- **QA Engineers:** Verifying the correctness and robustness of the function.
+- **Python Developers:** Integrating or extending the `add_two_numbers` function.
+- **QA Engineers:** Verifying the function's correctness and error handling.
 
 #### Secondary Audience
-- **Operations Teams:** Troubleshooting issues by analyzing log outputs.
-- **Technical Project Managers:** Understanding the scope and functionality of the utility.
+- **DevOps/SRE Teams:** Understanding logging output for operational monitoring.
+- **Technical Project Managers:** Understanding component functionality and limitations.
 
 #### Prerequisites
 Readers should have:
 - Working knowledge of Python programming.
-- Basic understanding of Python's `logging` module.
-- Familiarity with core software development principles.
+- Familiarity with basic logging concepts.
 
 ---
 
@@ -88,88 +84,79 @@ Readers should have:
 ### 2.1. High-Level Architecture Diagram
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                       EXTERNAL APPLICATION                  │
-│                                                             │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │  Python Script / Module                               │  │
-│  │  • Calls `add_two_numbers` with num1, num2, (corrID)  │  │
-│  └───────────────────▲───────────────────────────────────┘  │
-└───────────────────────│ Argument Passing                     │
-                        │                                      │
-                        ▼ Function Call                        │
-┌─────────────────────────────────────────────────────────────┐
-│                 CORE UTILITY: addNums.py                    │
-│                                                             │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │                 `add_two_numbers` Function            │  │
-│  │                                                       │  │
-│  │  1. Input Validation & Type Conversion                │  │
-│  │     • num1, num2 (str/int) -> int                     │  │
-│  │     • Handles ValueError for non-numeric inputs       │  │
-│  │                                                       │  │
-│  │  2. Arithmetic Operation                              │  │
-│  │     • Calculates sum = num1_int + num2_int            │  │
-│  │                                                       │  │
-│  │  3. Logging                                           │  │
-│  │     • Custom format with Correlation ID (info/error)  │  │
-│  │     • Prints to standard output                       │  │
-│  └─────────────▲───────────────▼───────────────────────┘  │
-└─────────────────│ Return Value / Log Stream                │
-                  │                                          │
-                  ▼                                          │
-┌─────────────────────────────────────────────────────────────┐
-│                 OUTPUT & MONITORING                         │
-│                                                             │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │  • Function Result (int)                              │  │
-│  │  • Console Output (Structured Logs)                   │  │
-│  └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────┐
+│       EXTERNAL CALLER        │
+│    (e.g., another Python    │
+│    script, web service)      │
+└───────────────┬──────────────┘
+                │
+                │ Function Call (num1, num2, corrID)
+                ▼
+┌──────────────────────────────┐
+│         addNums.py           │
+│  `add_two_numbers` Function  │
+│  (Type Conversion, Addition) │
+└───────────────┬──────────────┘
+                │
+                │ Logging (INFO)
+                ▼
+┌──────────────────────────────┐
+│        STANDARD OUTPUT       │
+│      (Console / Log File)    │
+└──────────────────────────────┘
 ```
 
 ### 2.2. Google Cloud Platform (GCP) Services
 
-This utility is a standalone Python function and does not directly leverage any Google Cloud Platform services. It is designed to be easily portable and can be integrated into applications deployed on GCP (e.g., Cloud Functions, Cloud Run, GKE) or any other environment.
+This module is a standalone Python utility and does not directly utilize any Google Cloud Platform services. In a larger, cloud-native application context, the `logging` output would typically be ingested by a service like **Cloud Logging** for centralized log management and analysis. However, this is external to the `addNums.py` module itself.
 
 ### 2.3. Application Architecture
 
-The application architecture for this component is minimal, consisting of a single Python file, `addNums.py`, which defines one primary function: `add_two_numbers`.
+`addNums.py` is a single-module Python application.
 
-#### 2.3.1. `addNums.py` (25 lines) - Core Utility Module
+#### 2.3.1. Google ADK Framework
 
-**Purpose:** To encapsulate robust number addition with comprehensive logging.
+**Not Applicable.** This module does not use the Google Agent Development Kit (ADK) framework. It is a general-purpose Python utility.
+
+#### 2.3.2. Modular Python Architecture
+
+The codebase consists of a single Python file, `addNums.py`, which defines one primary function. It is a highly cohesive, single-purpose module.
+
+**Module 1: `addNums.py`**
+
+**Purpose:** Provides a numerical addition function with logging capabilities.
 
 **Key Responsibilities:**
-- **Input Acceptance:** Takes two arguments (`num1`, `num2`) and an optional `corrID`.
-- **Type Conversion:** Attempts to convert `num1` and `num2` to integers.
-- **Error Handling:** Catches `ValueError` if inputs cannot be converted to integers, logs an error, and returns `None`.
-- **Addition:** Performs the sum of the converted integers.
-- **Logging:** Emits informational messages at various stages of execution and error messages upon failure, all formatted with a correlation ID.
-- **Result Output:** Returns the calculated sum or `None` on error.
+- Receive two inputs (intended to be numbers).
+- Attempt to convert these inputs to integers.
+- Perform the arithmetic sum.
+- Log the operation's progress and result, or report a conversion error implicitly by raising a `ValueError`.
 
-**Core Logic Flow:**
-1.  **Correlation ID Resolution**: Determines the `current_corr_id` from the optional argument or the module-level default.
-2.  **Informational Logging**: Logs the initial call with input parameters.
-3.  **Type Conversion Attempt**:
-    *   **Success**: Converts `num1` and `num2` to `int` types.
-    *   **Failure**: If `ValueError` occurs during conversion (e.g., input is "abc"):
-        *   Logs an error message indicating invalid input, formatted with the `current_corr_id`.
-        *   Returns `None` to signify a failed operation.
-4.  **Addition**: If conversion is successful, computes `result = num1_int + num2_int`.
-5.  **Informational Logging**: Logs the successful addition and the result.
-6.  **Return Value**: Returns `result`.
+**Core Function:** `add_two_numbers(num1, num2, corrID=None)`
 
-**Note on Error Handling in Provided Snippet:** The provided code snippet was missing the `try-except` block to gracefully handle `ValueError` during `int()` conversion, which was indicated by comments. For the purpose of this design document, we assume the intended `try-except` structure is in place, where `ValueError` is caught, an error is logged, and `None` is returned. A corrected implementation would explicitly wrap the `int()` conversions in a `try-except` block.
+- **Inputs:**
+    - `num1`: First number (or its string representation).
+    - `num2`: Second number (or its string representation).
+    - `corrID` (optional): A string to be used as the correlation identifier for logging. If not provided, it defaults to a global `correlation_ID` defined in the module.
 
-#### 2.3.2. Dependency Management
+- **Process:**
+    1. Determines the active correlation ID for logging.
+    2. Logs the function call with input parameters.
+    3. Attempts to convert `num1` to an integer (`num1_int`).
+    4. Attempts to convert `num2` to an integer (`num2_int`).
+    5. Calculates `result = num1_int + num2_int`.
+    6. Logs the successful addition and the result.
+    7. Returns the `result`.
 
-**Dependencies (`addNums.py`):**
-- `logging` (Python Standard Library): Used for all informational and error logging.
+- **Error Handling (Actual Behavior):** If `num1` or `num2` cannot be converted to an integer (e.g., if they are "hello"), a `ValueError` will be raised by the `int()` constructor, terminating the function execution. This contradicts the code comment's suggestion of "gracefully handles cases where inputs cannot be converted to numbers."
 
-**Rationale:**
-- The utility is designed to be as lightweight and self-contained as possible, minimizing external dependencies to enhance portability and reduce potential conflicts or overhead.
-- The `logging` module is a fundamental part of Python's standard library, making it a stable and universally available choice for internal instrumentation.
+#### 2.3.3. Dependency Management
+
+**Dependencies:**
+- **`logging`** (Python Standard Library): Used for outputting informational messages and potential error details. No external packages are required.
+
+**Total Module Size:**
+- `addNums.py`: 30 lines (approx.)
 
 ---
 
@@ -177,58 +164,19 @@ The application architecture for this component is minimal, consisting of a sing
 
 ### 3.1. Data Sources & Ingestion
 
-The `add_two_numbers` utility is designed to operate on primitive data types passed directly as function arguments.
-
-**Data Sources:**
-- **Function Arguments:** `num1` and `num2` are the primary data inputs.
-    - **Expected Types:** `int`, `float`, or `str` (where the string represents a valid integer).
-    - **Unsupported Types:** Other types (e.g., `list`, `dict`, custom objects) will trigger a `ValueError` during conversion.
-- **Configuration:** `correlation_ID` (a module-level string) serves as a default correlation identifier.
-
-**Data Ingestion Mechanism:**
-- **Direct Parameter Passing:** Input values are ingested directly when the `add_two_numbers` function is called from another part of the application. There are no external data ingestion pipelines or connectors involved.
+**Not Applicable.** The `addNums.py` module does not ingest data from external sources or persistent storage. Inputs are provided directly as function arguments at runtime.
 
 ### 3.2. BigQuery Datasets & Schemas
 
-This utility does not interact with BigQuery or any other database. As such, there are no datasets or schemas relevant to this component.
+**Not Applicable.** This module does not interact with BigQuery or define any data schemas.
 
 ### 3.3. Data Flow Diagram
 
-```
-┌─────────────────┐       ┌────────────────────────┐       ┌─────────────────┐
-│ Input Data      │       │ `add_two_numbers`      │       │ Output Data     │
-│ (num1, num2)    │       │ (addNums.py)           │       │ (result, logs)  │
-└───────┬─────────┘       └───────────┬────────────┘       └─────────┬───────┘
-        │                             │                              │
-        │ Function Call               │ 1. Input Validation          │
-        │                             │    (int(num1), int(num2))    │
-        │                             │                              │
-        │                             │ 2. Error Handling            │
-        │                             │    (if ValueError)           │
-        │                             │                              │
-        │                             │ 3. Addition                  │
-        │                             │    (num1_int + num2_int)     │
-        │                             │                              │
-        │                             │ 4. Logging                   │
-        │                             │    (INFO/ERROR to console)   │
-        │                             │                              │
-        └────────────────────────────►│                              │
-                                      │ Returns (int or None)        │
-                                      └─────────────────────────────►
-```
-
-**Data Flow Steps:**
-
-1.  **Input:** `num1` and `num2` (e.g., `5`, `"10"`) are passed to the `add_two_numbers` function.
-2.  **Validation & Conversion:** The function attempts to convert `num1` and `num2` into integers.
-3.  **Error Handling (Implicit):** If conversion fails, an error message is logged, and `None` is returned.
-4.  **Addition:** If conversion succeeds, the two integer values are added together.
-5.  **Logging:** Informational messages about the process and result (or error messages if conversion failed) are outputted to the console, prefixed with the resolved `correlation_ID`.
-6.  **Output:** The calculated sum (an integer) is returned to the caller, or `None` if an error occurred.
+**Not Applicable.** See the simplified High-Level Architecture Diagram in Section 2.1.
 
 ### 3.4. Machine Learning Models
 
-This utility is a basic arithmetic function and does not involve any machine learning models, algorithms, or related infrastructure.
+**Not Applicable.** This module does not contain or utilize any machine learning models.
 
 ---
 
@@ -236,281 +184,28 @@ This utility is a basic arithmetic function and does not involve any machine lea
 
 ### 4.1. Modular Application Design
 
-The `addNums.py` file represents a single, self-contained module. Its design adheres to principles of simplicity and clear responsibility for a utility function.
+The `addNums.py` module is designed as a single, self-contained unit. Its purpose is encapsulated within the `add_two_numbers` function.
 
-#### 4.1.1. Module: `addNums.py` - Core Addition Utility
+#### 4.1.1. Module 1: `addNums.py` - Core Logic (approx. 30 lines)
 
-**Purpose:** To provide a robust and traceable function for adding two numbers, handling common input variations.
+**Purpose:** Centralizes the logic for adding two numbers, including input parsing and detailed logging.
 
-**Design Principles:**
--   **Single Responsibility:** The module (and its primary function) is solely responsible for adding two numbers and logging the operation.
--   **Loose Coupling:** It has no dependencies on other application-specific modules or external services, making it highly portable.
--   **Defensive Programming:** Inputs are validated and converted, with explicit error handling for invalid types.
--   **Observability:** Comprehensive logging with correlation IDs ensures that every operation and its outcome is traceable.
+**Architecture Pattern:** Utility function.
 
-**Key Function: `add_two_numbers(num1, num2, corrID=None)`**
+**Core Responsibilities:**
+1.  **Input Processing:** Accepts `num1`, `num2` (can be `int` or `str` representations of `int`), and an optional `corrID`.
+2.  **Type Conversion:** Explicitly uses `int()` to convert inputs, assuming they are convertible.
+3.  **Arithmetic Operation:** Performs a standard Python addition.
+4.  **Logging:** Records function entry, input values, conversion attempts, and successful results using a configured `logging` module.
 
-This function is the core of the `addNums.py` module.
-
-**Parameters:**
--   `num1`: The first number to add. Can be an `int`, `float` (will be truncated by `int()`), or `str` representing an integer.
--   `num2`: The second number to add. Same types as `num1`.
--   `corrID` (optional): A string to serve as a correlation identifier for log messages specific to this call. If `None`, the module's global `correlation_ID` is used.
-
-**Logic Breakdown:**
-
-1.  **Correlation ID Management:**
-    *   The function prioritizes `corrID` passed as an argument.
-    *   If `corrID` is not provided, it falls back to the `correlation_ID` defined at the module level (e.g., "41131d34-334c-488a-bce2-a7642b27cf35").
-    *   Log prefixes (`info_prefix`, `error_prefix`) are dynamically constructed using this resolved ID.
-
-2.  **Input Conversion and Error Handling:**
-    *   The function attempts to convert `num1` and `num2` to integers using `int()`.
-    *   **Intended Error Handling (as per documentation comment):** This conversion is designed to be wrapped in a `try-except ValueError` block.
-        *   If `ValueError` occurs (e.g., `num1` is "hello"), an error message (`correlation_ID:<ID> Error converting inputs...`) is logged.
-        *   The function then returns `None`, signaling a failure to the caller.
-    *   **Current Snippet Status:** The provided code snippet for `addNums.py` *lacks the explicit `try-except` block* around the `int()` conversions. In a production-ready system aligned with the documentation's intent, this `try-except` block must be added to prevent unhandled `ValueError` exceptions and ensure graceful degradation as described.
-
-3.  **Addition:**
-    *   If both `num1` and `num2` are successfully converted to integers, their sum is calculated.
-
-4.  **Logging:**
-    *   `logging.info`: Used to record the function call initiation and successful completion, including inputs and result.
-    *   `logging.error`: Used to record conversion failures, providing context about the invalid inputs.
-    *   The `logging.basicConfig` is set up to output messages directly, with the correlation ID integrated into the `message` field based on `info_prefix` and `error_prefix`.
-
-5.  **Return Value:**
-    *   Returns the integer sum on successful execution.
-    *   Returns `None` if an input conversion error occurred.
-
-### 4.2. Dependencies & Libraries
-
-The `addNums.py` utility has minimal dependencies, relying exclusively on the Python Standard Library.
-
-**Production Dependencies:**
--   `logging` (Python Standard Library)
-
-**Dependency Rationale:**
--   **`logging`**: Essential for internal observability, allowing for structured and traceable output of execution flow and errors. Being part of the standard library, it incurs no external overhead or installation requirements.
-
-### 4.3. Charting & Visualization
-
-This utility is purely a backend arithmetic function and does not involve any charting or visualization components.
-
----
-
-## 5. Security Architecture
-
-Given the nature of `addNums.py` as a standalone, local utility function operating on basic numerical inputs, its security surface is minimal. It does not handle sensitive data, interact with external systems, manage user authentication, or use any secrets.
-
-### 5.1. Authentication & Authorization
-
-Not applicable. The `add_two_numbers` function operates without any authentication or authorization mechanisms. Access is controlled by the security of the broader application that imports and calls this utility.
-
-### 5.2. Secret Management
-
-Not applicable. The utility does not store, retrieve, or process any secrets (e.g., API keys, passwords, sensitive tokens).
-
-### 5.3. Network Security
-
-Not applicable. The `add_two_numbers` function performs local computations and does not initiate or participate in any network communication.
-
----
-
-## 6. Deployment & Configuration
-
-### 6.1. Environment Configuration
-
-The `add_two_numbers` utility has very limited configuration requirements.
-
-#### 6.1.1. In-Code Configuration (`addNums.py`)
-
-**1. Logging Configuration:**
-   The `logging` module is configured via `logging.basicConfig` directly within `addNums.py`.
-
-   ```python
-   logging.basicConfig(level=logging.INFO, format='%(message)s')
-   ```
-   -   **`level=logging.INFO`**: Sets the minimum logging level to INFO. This means messages with severity INFO, WARNING, ERROR, and CRITICAL will be processed. DEBUG messages will be ignored.
-   -   **`format='%(message)s'`**: Configures the output format to display only the log message itself. This is crucial for the custom correlation ID formatting implemented in the function.
-
-**2. Global Correlation ID:**
-   A default `correlation_ID` is defined at the module level.
-
-   ```python
-   correlation_ID ="41131d34-334c-488a-bce2-a7642b27cf35"
-   ```
-   -   **Purpose**: This string acts as a default identifier for log messages when a specific `corrID` is not passed to the `add_two_numbers` function. In a real-world scenario, this might be dynamically generated or passed from a parent process.
-   -   **Modifiability**: This variable can be directly changed within the file or overridden by passing the `corrID` argument to the function.
-
-#### 6.1.2. Configuration Validation
-
-No explicit validation framework (e.g., Pydantic) is used for these simple in-code configurations. The Python interpreter handles basic type checking, and the function's internal logic manages the usage of these values.
-
-#### 6.1.3. Multi-Environment Configuration
-
-As a simple utility, `addNums.py` does not employ advanced multi-environment configuration patterns. The `correlation_ID` could be modified for different environments (e.g., "dev-corr-id", "prod-corr-id") or, more robustly, provided by the calling application via the `corrID` parameter, which itself would derive from environment variables or a configuration service in a larger system.
-
-### 6.2. Automated Setup Script
-
-Not applicable. As a single Python file with no external dependencies beyond the standard library, `addNums.py` does not require an automated setup script. It can be integrated into any Python project by simply placing the file in the appropriate directory and importing it, or by executing it directly (if an entry point were provided).
-
-### 6.3. Running the Application
-
-`addNums.py` defines a function but does not contain a `if __name__ == "__main__":` block, meaning it is designed to be imported and used as a module rather than executed directly as a script that performs an action.
-
-#### 6.3.1. Local Development / Usage
-
-To use the `add_two_numbers` function, it must be imported into another Python script or module.
-
-**Example Usage:**
-
-```python
-# main_app.py
-import addNums
-import logging
-
-# Configure logging for the main application (optional, if addNums didn't do it)
-# logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
-
-my_corr_id = "my-unique-transaction-id-123"
-
-# Successful addition with custom correlation ID
-sum1 = addNums.add_two_numbers(10, 20, my_corr_id)
-if sum1 is not None:
-    print(f"Result (corr: {my_corr_id}): {sum1}")
-
-# Successful addition using default correlation ID
-sum2 = addNums.add_two_numbers("5", "7")
-if sum2 is not None:
-    print(f"Result (default corr): {sum2}")
-
-# Handling non-numeric input
-sum_error = addNums.add_two_numbers("hello", 5, "error-test-456")
-if sum_error is None:
-    print(f"Addition failed as expected for non-numeric input.")
-
-# Output will include logs from addNums.py
-# Example log output:
-# my-unique-transaction-id-123 - Function `add_two_numbers` called with num1=10, num2=20.
-# my-unique-transaction-id-123 - Attempting to convert inputs to integers.
-# my-unique-transaction-id-123 - Successfully added 10 and 20. Result: 30
-# Result (corr: my-unique-transaction-id-123): 30
-# 41131d34-334c-488a-bce2-a7642b27cf35 - Function `add_two_numbers` called with num1=5, num2=7.
-# 41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers.
-# 41131d34-334c-488a-bce2-a7642b27cf35 - Successfully added 5 and 7. Result: 12
-# Result (default corr): 12
-# error-test-456 - Function `add_two_numbers` called with num1=hello, num2=5.
-# error-test-456 - Attempting to convert inputs to integers.
-# correlation_ID:error-test-456 Error converting inputs to integers. Inputs received: num1='hello', num2='5'. Error: invalid literal for int() with base 10: 'hello'
-# Addition failed as expected for non-numeric input.
-```
-
-#### 6.3.2. Containerized Deployment
-
-While `addNums.py` itself is not an application, it would be included as part of a larger Python application's container image.
-
-**Dockerfile Snippet (Example for a larger app):**
-
-```dockerfile
-# ... (base image, dependencies) ...
-
-# Copy the utility file
-COPY my_application_folder/addNums.py /app/my_application_folder/
-
-# ... (other application files and entrypoint) ...
-```
-
-#### 6.3.3. Cloud Run / GKE Deployment
-
-Similar to containerized deployment, `addNums.py` would be part of the application code deployed to platforms like Cloud Run or GKE. Its execution would be triggered by calls from other parts of the application running within these environments.
-
-### 6.3.4. Monitoring & Health Checks
-
-Not applicable directly to `addNums.py`. Monitoring and health checks would be implemented at the level of the *calling application* or the container it runs in. The logs produced by `addNums.py` would contribute to the overall observability of the system where it's integrated.
-
----
-
-## 7. Operations & Maintenance
-
-### 7.1. Logging
-
-The `addNums.py` utility is designed with explicit logging to facilitate operational oversight and troubleshooting.
-
-#### 7.1.1. Application Logging Architecture
-
-**Logging Configuration:**
--   **Level:** `INFO` (configurable via `logging.basicConfig` if wrapped by a parent application).
--   **Format:** `%(message)s`. This simple format is chosen to allow the function to fully control the message content, including the custom correlation ID prefix.
--   **Output:** Standard output (console).
-
-**Log Message Types:**
-
-1.  **Informational Messages:**
-    -   **Event:** Function entry, input conversion attempt, successful addition.
-    -   **Format:** `[correlation_ID] - [Message]`.
-    -   **Example:** `41131d34-334c-488a-bce2-a7642b27cf35 - Function `add_two_numbers` called with num1=10, num2=20.`
-
-2.  **Error Messages:**
-    -   **Event:** `ValueError` during input type conversion (e.g., non-numeric string).
-    -   **Format:** `correlation_ID:[correlation_ID] Error converting inputs to integers. Inputs received: num1='[num1_value]', num2='[num2_value]'. Error: [exception_message]`.
-    -   **Example:** `correlation_ID:error-test-456 Error converting inputs to integers. Inputs received: num1='hello', num2='5'. Error: invalid literal for int() with base 10: 'hello'`
-
-**Correlation ID for Traceability:**
--   Each log message includes a `correlation_ID` (either passed as an argument or the module's default). This is a critical feature for tracing the execution path of a specific `add_two_numbers` call through a larger system, especially in distributed environments.
-
-#### 7.1.2. Google Cloud Logging Integration
-
-While `addNums.py` itself only outputs to standard output, when integrated into an application deployed on GCP (e.g., Cloud Run, Cloud Functions, GKE), these standard output logs are automatically captured by Google Cloud Logging.
-
--   **Automatic Ingestion:** GCP automatically ingests `stdout` and `stderr` streams, making them queryable in the Cloud Logging interface.
--   **Structured Logging (Recommendation):** For enhanced analysis in Cloud Logging, the calling application or a wrapper around `add_two_numbers` could transform the text-based logs into structured JSON logs, including the correlation ID as a dedicated field.
-
-### 7.2. Monitoring
-
-Monitoring for `addNums.py` would primarily involve analyzing its log output for errors or unexpected behavior. As a standalone utility, it does not expose metrics or have specific performance monitoring requirements.
-
--   **Error Monitoring:** Alerts can be configured in Cloud Logging (or other log aggregation systems) to trigger if `ERROR` level messages containing "Error converting inputs" are detected.
--   **Usage Monitoring:** The frequency of `INFO` messages can indicate how often the function is being called, providing insights into its usage patterns within the larger application.
-
-### 7.3. Scaling & Performance Tuning
-
-Not applicable. The `add_two_numbers` function performs a very fast, local arithmetic operation. Its performance is negligible, and it does not have inherent scaling concerns. Any scaling considerations would be at the level of the application that consumes this utility.
-
-### 7.4. Backup & Disaster Recovery
-
-Not applicable. `addNums.py` is a code file. Its "backup" is handled by source code version control (e.g., Git), and "disaster recovery" involves simply retrieving the file from the repository and deploying it with the consuming application. There is no data to backup or specific recovery procedures for this utility itself.
-
-### 7.5. Troubleshooting Guide
-
-#### 7.5.1. Common Issues and Solutions
-
-**Issue 1: Unexpected `ValueError` when calling `add_two_numbers`**
-
-**Symptoms:**
-The `add_two_numbers` function, when called, raises a `ValueError` directly instead of logging an error and returning `None`.
-
-**Diagnosis:**
-This indicates that the `try-except ValueError` block, as described in the function's intended design, is missing or incorrectly implemented in the current `addNums.py` code snippet. The provided code snippet indeed had this issue.
-
-**Solution:**
-Ensure the `int()` conversions for `num1` and `num2` are wrapped in a `try-except ValueError` block, and that the `except` block correctly logs the error and returns `None`.
-
-**Corrected Code Implementation (Example):**
+**Key Function:** `add_two_numbers`
 
 ```python
 import logging
 
-logging.basicConfig(level=logging.INFO, format='%(message)s')
-
-correlation_ID ="41131d34-334c-488a-bce2-a7642b27cf35"
+correlation_ID = "41131d34-334c-488a-bce2-a7642b27cf35"
 
 def add_two_numbers(num1, num2, corrID=None):
-    """
-    This function takes two numbers (integers or string representations) as input and returns their sum.
-    It attempts to convert inputs to integers.
-    It gracefully handles cases where inputs cannot be converted to numbers.
-    """
     current_corr_id = corrID if corrID is not None else correlation_ID
     info_prefix = f'{current_corr_id} - ' if current_corr_id else ''
     error_prefix = f'correlation_ID:{current_corr_id} ' if current_corr_id else ''
@@ -518,68 +213,251 @@ def add_two_numbers(num1, num2, corrID=None):
     logging.info(f'{info_prefix}Function `add_two_numbers` called with num1={num1}, num2={num2}.')
     logging.info(f'{info_prefix}Attempting to convert inputs to integers.')
 
-    try:
-        num1_int = int(num1)
-        num2_int = int(num2)
-    except ValueError as e:
-        logging.error(f'{error_prefix}Error converting inputs to integers. '
-                      f'Inputs received: num1=\'{num1}\', num2=\'{num2}\'. Error: {e}')
-        return None
-    except TypeError as e:
-        # Handles cases like None, list, dict being passed
-        logging.error(f'{error_prefix}TypeError converting inputs. '
-                      f'Inputs received: num1=\'{num1}\', num2=\'{num2}\'. Error: {e}')
-        return None
+    # NOTE: The provided code comments suggest graceful error handling,
+    # but the actual implementation directly calls int() without a try-except block.
+    # Therefore, non-integer convertible inputs will raise a ValueError.
+    num1_int = int(num1)
+    num2_int = int(num2)
 
-    # Calculate the sum
     result = num1_int + num2_int
     logging.info(f'{info_prefix}Successfully added {num1_int} and {num2_int}. Result: {result}')
     return result
 ```
 
-**Issue 2: Logs are missing correlation IDs or are not formatted correctly.**
+**Logging Pattern:**
+The module configures `logging.basicConfig` to output messages at `INFO` level. Each log message is prefixed with a correlation ID, facilitating traceability:
+-   **Informational Messages:** Use the format `{correlation_ID} - {message}`.
+-   **Error Messages:** The `error_prefix` variable is defined but not used in the current version of the code, indicating a potential future enhancement for structured error logging.
 
-**Symptoms:**
-Log messages appear without the `[correlation_ID] -` prefix, or error messages are missing the `correlation_ID:` part.
+#### 4.1.2. Module 2 & 3
 
-**Diagnosis:**
-1.  **Check `logging.basicConfig`:** Ensure that the `format='%(message)s'` is correctly set *before* any calls to `logging.info` or `logging.error` are made, including those within `addNums.py`. If a parent application reconfigures the root logger with a different format, it might override this.
-2.  **Check `info_prefix` / `error_prefix` construction:** Verify that the logic to construct `info_prefix` and `error_prefix` using `current_corr_id` is correct.
+**Not Applicable.** There are no additional modules in this codebase corresponding to the `chart_generator.py` or `quality_alerting_agent.py` sections of the template.
 
-**Solution:**
--   Ensure `logging.basicConfig` in `addNums.py` is executed once at import time.
--   If a parent application needs a different logging format, consider using a named logger for `addNums` and configuring it separately, or ensuring the parent's `basicConfig` *also* includes `%(message)s` if that's the desired ultimate output.
+### 4.2. Dependencies & Libraries
 
-**Issue 3: Incorrect numerical results.**
-
-**Symptoms:**
-`add_two_numbers(0.5, 0.5)` returns `0` instead of `1.0`.
-
-**Diagnosis:**
-The `int()` conversion function truncates floating-point numbers (e.g., `int(0.5)` becomes `0`). The function is explicitly designed to work with integers.
-
-**Solution:**
--   If floating-point arithmetic is required, a different utility function should be used (e.g., one using `float()`).
--   If floating-point inputs are expected but integer output is desired, document this truncation behavior clearly to callers.
-
-### 7.5.2. Debug Mode
-
-To enable more verbose logging from the utility for debugging, the `logging.basicConfig` level can be adjusted.
-
-**Temporary Debug Mode:**
-Modify the `addNums.py` file directly for local debugging:
-
-```python
-import logging
-# Change level to DEBUG for more detailed output
-logging.basicConfig(level=logging.DEBUG, format='%(message)s')
+**Production Dependencies (`requirements.txt` - if one were to be created):**
+```
+# No external dependencies, only Python standard library modules are used.
 ```
 
-This will include any `logging.debug` calls within the utility (though none are currently present in the provided snippet, they could be added for deeper introspection).
+**Dependency Rationale:**
+-   `logging` (Standard Library): Provides basic logging functionality.
 
-### 7.5.3. Health Check Endpoints
+**Version Management:**
+-   No external dependencies means no explicit version management for this module. Compatibility relies solely on the Python version.
 
-Not applicable. As a pure utility function, `addNums.py` does not provide any network-accessible health check endpoints. Its "health" is determined by its ability to execute successfully and its log output.
+### 4.3. Charting & Visualization
+
+**Not Applicable.** This module does not perform any charting or data visualization.
+
+---
+
+## 5. Security Architecture
+
+### 5.1. Authentication & Authorization
+
+**Not Applicable.** The `addNums.py` module is a standalone utility function that operates within the context of its caller. It does not implement any authentication or authorization mechanisms, nor does it interact with any external systems that would require credentials. Access control for its execution is managed by the permissions of the calling process or environment.
+
+### 5.2. Secret Management
+
+**Not Applicable.** The `addNums.py` module does not use or store any secrets, API keys, or sensitive credentials. The `correlation_ID` is a static string within the code and is not considered a secret.
+
+### 5.3. Network Security
+
+**Not Applicable.** The `addNums.py` module performs no network operations. It does not open ports, make external requests, or communicate over any network protocols. Its execution is entirely local to the process that invokes it.
+
+### 5.4. Data Encryption
+
+**Not Applicable.** As the module handles no persistent data storage or network transmission, data encryption (at rest or in transit) is not applicable to its direct functionality.
+
+### 5.5. Security Monitoring & Incident Response
+
+**Not Applicable.** Due to the minimal scope of this module, dedicated security monitoring and incident response for `addNums.py` itself are not implemented. However, the `logging` output can be integrated into a broader system's security monitoring solution (e.g., Cloud Logging with alert policies) to detect unusual activity or errors related to its invocation.
+
+---
+
+## 6. Deployment & Configuration
+
+### 6.1. Environment Configuration
+
+The `addNums.py` module can be configured via a global variable within the Python file itself.
+
+#### 6.1.1. Environment Variables (`.env` File)
+
+**Not Applicable.** This module does not use `.env` files for configuration. All configuration is currently internal to the Python file.
+
+**Configuration Item:**
+
+| Variable | Description | Default Value | Location |
+|----------|-------------|---------------|----------|
+| `correlation_ID` | A default unique identifier for tracing logs across a sequence of operations. Can be overridden per function call. | `41131d34-334c-488a-bce2-a7642b27cf35` | Global variable in `addNums.py` |
+
+### 6.2. Automated Setup Script (`setup.sh`)
+
+**Not Applicable.** Given its minimal nature, `addNums.py` does not require an automated setup script. It is designed to be directly included or imported into other Python projects.
+
+### 6.3. Running the Application
+
+#### 6.3.1. Local Development
+
+To use `addNums.py`, simply import it into another Python script and call the `add_two_numbers` function.
+
+**Example Usage:**
+
+```python
+# my_app.py
+import addNums
+import logging
+
+# Configure logging for the main app if not already done
+# logging.basicConfig(level=logging.INFO, format='%(message)s')
+
+# Example 1: Valid integer inputs
+try:
+    result1 = addNums.add_two_numbers(5, 7, corrID="APP-CALL-001")
+    print(f"Result 1: {result1}")
+except ValueError as e:
+    logging.error(f"APP-CALL-001 - Error adding numbers: {e}")
+
+# Example 2: Valid string representations of numbers
+try:
+    result2 = addNums.add_two_numbers("10", "15", corrID="APP-CALL-002")
+    print(f"Result 2: {result2}")
+except ValueError as e:
+    logging.error(f"APP-CALL-002 - Error adding numbers: {e}")
+
+# Example 3: Invalid input (will raise ValueError)
+try:
+    result3 = addNums.add_two_numbers("abc", 20, corrID="APP-CALL-003")
+    print(f"Result 3: {result3}")
+except ValueError as e:
+    logging.error(f"APP-CALL-003 - Error adding numbers: {e}")
+```
+
+#### 6.3.2. Containerized Deployment
+
+**Not Applicable.** While `addNums.py` can be part of a larger containerized application, it does not require a dedicated Dockerfile or Docker Compose setup on its own. It would simply be included in the application's overall build.
+
+#### 6.3.3. Cloud Run Deployment (Production)
+
+**Not Applicable.** This module is not designed for direct deployment as a service. It is a utility component intended for integration into larger applications, which may then be deployed to platforms like Cloud Run.
+
+#### 6.3.4. GKE Deployment (Enterprise)
+
+**Not Applicable.** Similar to Cloud Run, this module would be a part of a larger application deployed to GKE, not a standalone deployment target.
+
+---
+
+## 7. Operations & Maintenance
+
+### 7.1. Logging
+
+The `addNums.py` module integrates basic logging using Python's standard `logging` library.
+
+#### 7.1.1. Application Logging Architecture
+
+**Python Logging Configuration:**
+The module initializes logging with `logging.basicConfig` to stream messages to standard output (console) at `INFO` level.
+
+```python
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+```
+
+**Log Levels:**
+Only `INFO` level messages are explicitly generated within the `addNums.py` module. If an error occurs during type conversion, a `ValueError` is raised, which would typically be caught and logged by the calling application, potentially at an `ERROR` level.
+
+**Key Application Log Events:**
+-   **Function Call Entry:** Logs the `add_two_numbers` function being called with the provided `num1` and `num2`.
+-   **Type Conversion Attempt:** Logs the intent to convert inputs to integers.
+-   **Successful Addition:** Logs the successfully added numbers and the final result.
+
+**Correlation ID:**
+All log messages generated by `add_two_numbers` are prefixed with a `correlation_ID`. This ID can be passed dynamically to the function via the `corrID` argument, or it defaults to a globally defined `correlation_ID` within the module. This feature aids in tracing the execution of individual function calls within a larger system's logs.
+
+**Example Log Output:**
+
+```
+41131d34-334c-488a-bce2-a7642b27cf35 - Function `add_two_numbers` called with num1=5, num2=7.
+41131d34-334c-488a-bce2-a7642b27cf35 - Attempting to convert inputs to integers.
+41131d34-334c-488a-bce2-a7642b27cf35 - Successfully added 5 and 7. Result: 12
+```
+
+### 7.2. Monitoring
+
+**Not Applicable.** For a single utility function, dedicated monitoring is typically managed at the application level that integrates it, rather than for the module itself. The logs produced by `addNums.py` would feed into the larger application's monitoring system.
+
+### 7.3. Scaling & Performance Tuning
+
+**Not Applicable.** The `addNums.py` module is a simple arithmetic function with negligible computational overhead. Its performance is dependent on the underlying Python interpreter and the CPU of the host system. Scaling considerations would apply to the encompassing application that utilizes this utility.
+
+### 7.4. Backup & Disaster Recovery
+
+**Not Applicable.** As a self-contained Python source file, backup and disaster recovery apply to the version control system (e.g., Git repository) where the code is stored, not to runtime data or state.
+
+### 7.5. Troubleshooting Guide
+
+#### 7.5.1. Common Issues and Solutions
+
+**Issue 1: `ValueError` when calling `add_two_numbers`**
+
+**Symptoms:**
+The application crashes with a `ValueError` similar to:
+```
+ValueError: invalid literal for int() with base 10: 'abc'
+```
+
+**Diagnosis:**
+The `add_two_numbers` function received an input (`num1` or `num2`) that could not be successfully converted into an integer by Python's `int()` constructor. This occurs because, despite comments suggesting "graceful handling," the current implementation of `add_two_numbers` does not include a `try-except` block to catch `ValueError` during type conversion.
+
+**Solution:**
+Two primary approaches to resolve this:
+
+1.  **Client-Side Input Validation:** Ensure that the calling code validates inputs before passing them to `add_two_numbers`.
+    ```python
+    # Example client-side handling
+    try:
+        val1 = "123"
+        val2 = "hello"
+        if not (str(val1).isdigit() and str(val2).isdigit()):
+            raise ValueError("Inputs must be numeric.")
+        result = addNums.add_two_numbers(val1, val2)
+    except ValueError as e:
+        logging.error(f"Input error: {e}")
+    ```
+
+2.  **Modify `add_two_numbers` for Graceful Handling:** Update the `add_two_numbers` function itself to implement the promised graceful error handling.
+
+    ```python
+    # Proposed modification to addNums.py
+    def add_two_numbers(num1, num2, corrID=None):
+        current_corr_id = corrID if corrID is not None else correlation_ID
+        info_prefix = f'{current_corr_id} - ' if current_corr_id else ''
+        error_prefix = f'correlation_ID:{current_corr_id} ' if current_corr_id else ''
+
+        logging.info(f'{info_prefix}Function `add_two_numbers` called with num1={num1}, num2={num2}.')
+        logging.info(f'{info_prefix}Attempting to convert inputs to integers.')
+
+        try:
+            num1_int = int(num1)
+            num2_int = int(num2)
+        except ValueError as e:
+            logging.error(f'{error_prefix}Failed to convert inputs to integers: {e}. num1={num1}, num2={num2}.')
+            # Depending on desired behavior, could raise a custom exception, return None, or a default value
+            raise TypeError(f"Invalid input type: {e}") # Re-raise as TypeError for clarity or handle differently
+
+        result = num1_int + num2_int
+        logging.info(f'{info_prefix}Successfully added {num1_int} and {num2_int}. Result: {result}')
+        return result
+    ```
+
+### 7.6. Debug Mode
+
+To enable more verbose logging from the Python `logging` module for debugging, change the `basicConfig` level (e.g., to `DEBUG`).
+
+```python
+# Temporarily modify in addNums.py or in the calling script before importing addNums
+logging.basicConfig(level=logging.DEBUG, format='%(message)s')
+```
 
 ---
 
@@ -591,42 +469,30 @@ Not applicable. As a pure utility function, `addNums.py` does not provide any ne
 
 | Term | Definition |
 |------|------------|
-| **Correlation ID** | A unique identifier assigned to a specific request or operation, passed through various system components to link related log entries and actions for traceability. |
-| **`logging` module** | Python's standard library module providing a flexible framework for emitting log messages from applications. |
-| **`int()`** | A built-in Python function that converts a value to an integer. It raises a `ValueError` if the value cannot be converted and truncates floats. |
-| **Standard Library** | A collection of modules that are part of the Python distribution, available automatically without additional installation. |
-| **`ValueError`** | A Python exception raised when an operation or function receives an argument that has the right type but an inappropriate value. |
-
-**Platform-Specific Terms:**
-
-| Term | Definition |
-|------|------------|
-| **`addNums.py`** | The Python file containing the `add_two_numbers` utility function. |
-| **`add_two_numbers`** | The core function within `addNums.py` responsible for adding two numbers with type conversion and logging. |
+| **Correlation ID** | A unique identifier used to link related log entries across different system components or function calls, enabling end-to-end traceability. |
+| **Logging** | The act of recording events, operations, or messages generated by a software application during its execution, typically for diagnostic or audit purposes. |
+| **Python Standard Library** | The collection of modules and packages that come with a standard Python installation, providing a wide range of functionalities. |
+| **Utility Function** | A generic, reusable function designed to perform a specific, common task, often without direct ties to specific application logic. |
+| **`ValueError`** | A built-in Python exception raised when a function receives an argument of the correct type but an inappropriate value. |
 
 ### 8.2. Document References
 
 #### 8.2.1. Internal Documentation
 
-**Primary Documentation:**
-
-| Document | Purpose | Location | Key Content |
-|----------|---------|----------|-------------|
-| **TECHNICAL_DESIGN_DOCUMENT.md** | Complete technical specification (this document) | Repository root | Architecture, design, operational considerations for `addNums.py`. |
-
 **Source Code Documentation:**
 
 | File | Lines | Purpose | Key Functions/Tools |
 |------|-------|---------|---------------------|
-| **addNums.py** | 25 | Core addition utility with logging. | `add_two_numbers(num1, num2, corrID=None)` |
+| **addNums.py** | 30 | Core utility for adding two numbers with logging. | `add_two_numbers` |
 
 #### 8.2.2. External API Documentation
 
-**Python Libraries:**
+**Not Applicable.** This module does not rely on external APIs.
 
-| Library | Documentation | Use Case in Platform |
-|---------|--------------|---------------------|
-| **`logging`** | https://docs.python.org/3/library/logging.html | All application logging. |
+#### 8.2.3. Learning Resources
+
+**Python Logging:**
+-   **Official Documentation:** https://docs.python.org/3/library/logging.html
 
 ### 8.3. Change Log
 
@@ -634,105 +500,43 @@ Not applicable. As a pure utility function, `addNums.py` does not provide any ne
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| **1.0.0** | 2025-11-13 | Technical Team | Initial Technical Design Document created for `addNums.py`. |
+| **1.0.0** | [Current Date, e.g., November 29, 2023] | Scribe Agent | Initial Technical Design Document created for `addNums.py` |
 | | | | - Defined function purpose, scope, and architecture. |
-| | | | - Documented logging strategy with correlation IDs. |
-| | | | - Outlined operational considerations and troubleshooting. |
-
-**Planned Updates:**
-
-| Item | Priority | Target Date | Description |
-|------|----------|-------------|-------------|
-| Explicit `try-except` | High | TBD | Implement the explicit `try-except ValueError` block in `add_two_numbers` as described in this document to ensure robust error handling. |
-| Type Hinting | Low | TBD | Add Python type hints to `add_two_numbers` for improved code clarity and static analysis. |
-| Docstrings | Low | TBD | Enhance docstrings for `add_two_numbers` with usage examples and detailed parameter/return descriptions. |
+| | | | - Detailed logging implementation with correlation ID. |
+| | | | - Highlighted actual `ValueError` behavior vs. intended graceful handling. |
 
 ### 8.4. Configuration Examples
 
-#### 8.4.1. Sample In-Code Configuration
-
-The primary configuration is the `correlation_ID` default:
-
-```python
-# addNums.py
-
-# ... (logging setup) ...
-
-# Default Correlation ID used if not provided in function call
-correlation_ID = "static-default-uuid-for-all-calls"
-
-def add_two_numbers(num1, num2, corrID=None):
-    # ... (function logic) ...
-    current_corr_id = corrID if corrID is not None else correlation_ID
-    # ...
-```
-
-#### 8.4.2. Sample Function Calls
-
-```python
-import addNums
-
-# Call with explicit correlation ID
-addNums.add_two_numbers(100, 200, "my-transaction-id-001")
-
-# Call using the module's default correlation ID
-addNums.add_two_numbers("15", 25)
-
-# Call with invalid input, demonstrating error logging
-addNums.add_two_numbers("fifty", 5, "validation-check-002")
-```
+**Not Applicable.** Configuration for this module is limited to the `correlation_ID` global variable or the `corrID` function argument, as described in Section 6.1.1.
 
 ### 8.5. Troubleshooting Quick Reference
 
-**Quick Diagnostic Steps:**
-
-1.  **Check Log Output:** Examine the console output for `ERROR` messages from `addNums.py`. These will often contain direct indications of conversion failures.
-2.  **Verify Input Types:** Confirm that `num1` and `num2` passed to `add_two_numbers` are `int`, `float`, or `str` representations of integers.
-3.  **Inspect `addNums.py` source:** Ensure the `try-except ValueError` block is present and correctly implemented around the `int()` conversions.
-
 **Error Code Reference:**
 
-| Error | Service | Meaning | Common Cause | Solution |
-|-------|---------|---------|--------------|----------|
-| `ValueError` (unhandled) | Python runtime | Input argument cannot be converted to `int` | Passing non-numeric strings (e.g., "hello") | Implement `try-except ValueError` block in `add_two_numbers` to catch and handle this. |
-| Missing Correlation ID in logs | `addNums.py` logging | Logging format or ID generation logic issue | `logging.basicConfig` format overridden, or `info_prefix`/`error_prefix` logic is flawed. | Re-check `logging.basicConfig` and prefix generation logic. |
+| Error Code | Service | Meaning | Common Cause | Solution |
+|-----------|---------|---------|--------------|----------|
+| `ValueError` | `addNums.py` | Invalid literal for `int()` conversion | Non-numeric input provided to `add_two_numbers` | Implement input validation or `try-except` in `add_two_numbers` (see Section 7.5.1). |
 
 ### 8.6. Contact & Support
 
-#### 8.6.1. Support Channels
-
-**Technical Support:**
-
-| Channel | Purpose | Response Time | Contact |
-|---------|---------|--------------|---------|
-| **Email** | General inquiries and non-urgent issues | 24-48 hours | [Team Email] |
-| **Internal Chat** | Quick questions and troubleshooting | 2-4 hours (business hours) | [#team-dev-support] |
-
-#### 8.6.2. Client Customization Support
-
-Not applicable. This is a core utility function with a very specific, limited scope. Customization requests would generally involve modifying the function directly or creating a new utility.
+**Not Applicable.** For a component of this size and nature, support would typically be provided by the internal development team or maintainers of the larger application it is part of.
 
 ### 8.7. License & Copyright
 
 **Software License:**
 
-This utility function is proprietary software developed for [Internal Development Team]. All rights reserved.
-
-**Third-Party Licenses:**
-
-This utility uses no third-party libraries; it relies exclusively on the Python Standard Library, which is open-source under the Python Software Foundation License.
+This code is provided as a utility component. The licensing terms are generally inherited from the larger project it belongs to. If standalone, it typically falls under a standard open-source license (e.g., MIT, Apache 2.0) or a proprietary license as specified by the owning entity.
 
 ---
 
 ## Document End
 
 **Document Version**: 1.0.0  
-**Last Updated**: November 13, 2025  
-**Prepared For**: Internal Development Team  
-**Prepared By**: Technical Team  
+**Last Updated**: [Current Date, e.g., November 29, 2023]  
+**Prepared For**: Internal Development & Maintenance  
+**Prepared By**: Scribe Agent  
 
 **For questions or clarifications regarding this document, please contact:**  
-Email: [Team Email]  
-Internal Chat: [#team-dev-support]  
+[Placeholder for team contact information]
 
 ---

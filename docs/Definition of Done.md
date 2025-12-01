@@ -24,23 +24,22 @@ To achieve "Done," each discipline must sign off on their specific domain.
 
 ### 💻 For Developers
 *Before creating the Pull Request:*
-* [ ] **Unit Tests:** Code coverage is maintained or increased (Target: >80%). _(The `add_two_numbers` function requires unit tests to ensure correct behavior and error handling.)_
-* [ ] **Code Cleanup:** No debug `print` statements, commented-out code, or unused imports are left in the final code.
-* [ ] **Configuration Variables:** No hardcoded secrets or sensitive keys; configuration variables (e.g., default `correlation_ID` or other system parameters) are loaded from appropriate, secure sources (e.g., environment variables, config files). _(The current `correlation_ID` is hardcoded.)_
+* [ ] **Unit Tests:** Code coverage is maintained or increased (Target: >80%). _(Note: The current `addNums.py` file lacks dedicated unit tests, which should be prioritized for future development to meet this DoD.)_
+* [ ] **Code Cleanup:** No `console.log`, commented-out code, or unused imports. _(The `addNums.py` file is generally clean in this regard, with logging used appropriately.)_
+* [ ] **Environment Variables:** No hardcoded secrets or keys; config variables added to the deployment manager. _(The `correlation_ID` in `addNums.py` is currently hardcoded and should ideally be configurable or generated dynamically for production systems.)_
 * [ ] **Peer Review:** At least one approval from a senior engineer; all PR comments resolved.
 
 ### 🕵️ For Testers (QA)
 *Before moving ticket to "Ready for Release":*
-* [ ] **Functional Testing:** The "Happy Path" works as expected (e.g., `add_two_numbers(1, 2)` successfully returns `3`).
-* [ ] **Negative Testing:** Edge cases and error states (e.g., non-numeric inputs like `"a"`, `None`, or large numbers causing overflow) are handled gracefully, providing appropriate logging or raising informative exceptions. _(The `add_two_numbers` function needs robust error handling for invalid input types.)_
+* [ ] **Functional Testing:** The "Happy Path" works as expected (e.g., `add_two_numbers(1, 2)` returns `3`).
+* [ ] **Negative Testing:** Edge cases and error states (e.g., non-numeric inputs like `add_two_numbers('a', 2)`) are handled gracefully, and appropriate errors or defaults are returned/logged. _(Currently, `add_two_numbers` will raise a `ValueError` for non-integer inputs, which should be explicitly tested. The docstring implies graceful handling, but the implementation does not currently catch these conversion errors internally.)_
 * [ ] **Regression Check:** Existing features adjacent to this change still function correctly.
-* [ ] **Platform Compatibility:** If applicable, verified on specified Python versions or operating system environments.
 
 ### 👑 For Product Owners (PO)
 *Final Verification:*
 * [ ] **Business Value:** The feature solves the user problem as intended.
 * [ ] **Demo:** The feature has been demonstrated in the Sprint Review (or distinct demo session).
-* [ ] **Documentation:** Code comments (docstrings), logging standards, or external documentation (e.g., API specifications, user guides) have been updated (if applicable). _(The `add_two_numbers` function includes a docstring, which should be maintained and kept accurate.)_
+* [ ] **Documentation:** User guides or release notes have been updated (if applicable). _(The `add_two_numbers` function includes a docstring, which is a good starting point for internal documentation.)_
 
 ---
 
@@ -49,10 +48,10 @@ To achieve "Done," each discipline must sign off on their specific domain.
 
 | Check | Description |
 | :--- | :--- |
-| **Audit Logs** | Critical actions (e.g., function calls, conversions, errors, results) generate appropriate logs with correlation IDs for traceability and debugging. _(The `add_two_numbers` function already implements correlation ID logging for info and error messages.)_ |
-| **Performance Impact** | Feature does not degrade overall system performance or introduce unnecessary computational overhead. For simple functions like `add_two_numbers`, efficiency is assumed, but for more complex logic, profiling may be needed. |
-| **Security Scan** | Python package audits (e.g., `pip-audit` or similar tools) or Static Application Security Testing (SAST) tools show no high-severity vulnerabilities introduced by new or updated dependencies. |
-| **Data Privacy** | No PII (Personally Identifiable Information) or sensitive data is leaked in logs, outputs, or error messages. |
+| **Audit Logs** | Critical actions (e.g., function calls, input conversions, results) generate backend logs with a `correlation_ID` for traceability. _(The `add_two_numbers` function successfully logs its operations with a provided correlation ID, meeting this aspect.)_ |
+| **Load Time** | Feature does not degrade application performance. For simple utility functions like `add_two_numbers`, ensure minimal overhead. |
+| **Security Scan** | Python dependency scans (`pip-audit`, `safety`, `bandit`) or SAST tools show no high-severity vulnerabilities. |
+| **Data Privacy** | No PII (Personally Identifiable Information) is processed, leaked in logs or URLs. For utility functions like `add_two_numbers`, ensure only non-sensitive data (e.g., numerical inputs) is handled. |
 
 ---
 
@@ -68,4 +67,4 @@ If a User Story fails to meet the DoD by the end of the Sprint:
 > [!TIP]
 > **"Done" vs. "Acceptance Criteria"**
 > *   **Acceptance Criteria** are specific to *one* story (e.g., "User can click the blue button").
-> *   **Definition of Done** applies to *every* story (e.g., "All functions must have proper error handling and logging").
+> *   **Definition of Done** applies to *every* story (e.g., "All buttons must have hover states").
