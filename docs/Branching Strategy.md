@@ -91,7 +91,7 @@ Used solely for critical bugs in production that cannot wait for the next schedu
     ```
 2.  **Fix** the issue.
 3.  **Merge** into **both** `main` and `develop`.
-    > [!WARNING]
+    > [\!WARNING]
     > Forgetting to merge the hotfix back into `develop` will cause the bug to regress in the next release.
 
 -----
