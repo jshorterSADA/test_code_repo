@@ -70,9 +70,9 @@ The sum of `num1` and `num2` as an integer.
 
 **Important Note (Based on Code Analysis):**
 
-> **[!CAUTION] Denial of Service (DoS) Vulnerability**
-> The current implementation **lacks robust error handling** for input conversion. If `num1` or `num2` cannot be converted to an integer (e.g., `add_two_numbers("hello", "world")`), the function will raise a `ValueError`, causing the program to crash. This contradicts the docstring's claim of graceful handling and presents a Denial of Service vulnerability if used in a critical system where untrusted input might be provided.
-> It is strongly recommended to implement `try-except ValueError` blocks around the `int()` conversions to handle non-numeric inputs gracefully.
+> [!CAUTION] **Denial of Service (DoS) Vulnerability**
+> The current implementation **lacks robust error handling** for input conversion. If `num1` or `num2` cannot be converted to an integer (e.g., `add_two_numbers("hello", "world")`), the function will raise a `ValueError`, causing the program to crash. This directly contradicts the docstring's claim of "gracefully handling cases where inputs cannot be converted to numbers" and presents a Denial of Service vulnerability if used in a critical system where untrusted input might be provided.
+> It is strongly recommended to implement `try-except ValueError` blocks around the `int()` conversions to handle non-numeric inputs gracefully, as detailed in the `ARCHITECTURE.md` and `TECHNICAL_DESIGN_DOCUMENT.md`.
 
 -----
 

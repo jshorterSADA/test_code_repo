@@ -1,118 +1,119 @@
-```markdown
-# ARCHITECTURE.md: Core Number Addition Service
+# Developer Setup Guide - Core Number Addition Service
 
-This document provides a high-level overview of the architecture of the Core Number Addition Service, focusing on its context, major components, their interactions, and key architectural considerations derived from a recent code analysis.
+**Welcome to the team!** This guide will help you set up your local development environment to contribute to the Core Number Addition Service repository. Follow these steps sequentially to ensure a smooth onboarding experience.
 
-## 1. System Context
+---
 
-The Core Number Addition Service is a foundational utility designed to perform the basic arithmetic operation of adding two numbers. While simple in its core function, it demonstrates considerations for input flexibility (handling both integers and string representations of numbers) and basic operational traceability through logging with correlation IDs.
+## 1. Prerequisites
 
-Its primary role is to provide a reliable and traceable addition function that can be integrated into larger systems requiring numerical processing.
+Before cloning the repository, ensure your machine has the following tools installed.
 
-## 2. Containers/Components
+### Required Software
+| Tool | Version | Purpose |
+| :--- | :--- | :--- |
+| **Python** | `3.8+` | Runtime for the Core Number Addition Service. |
+| **Git** | `2.3+` | Version control. |
+| **VS Code** | Latest | Recommended IDE (with the official Python extension). |
 
-Given the current scope of the codebase, the system is monolithic and composed of a single, well-defined functional unit within a Python module.
+### Cloud & Infrastructure Tools
+*   **None required**: The Core Number Addition Service is a standalone Python script without cloud infrastructure dependencies for local development or execution.
 
-### Core Component: `addNums.py` Module
+---
 
-This module serves as the sole container for the system's logic. It exposes a primary function:
+## 2. Repository Setup
 
-*   **`add_two_numbers(num1, num2, corrID=None)`**: This function is the central piece of business logic. It takes two inputs, attempts to convert them to integers, calculates their sum, and returns the result. It also handles logging of its operations using a correlation ID for traceability.
+### Clone the Repository
+We use **SSH** for secure access. Ensure your SSH keys are added to your GitHub account.
 
-### Internal Elements:
-
-*   **Global `correlation_ID`**: A global variable used as a default correlation identifier when one is not explicitly provided to the `add_two_numbers` function.
-*   **Python `logging` Module**: Utilized for outputting informational messages regarding function calls, input conversions, and results.
-
-## 3. Relationships
-
-The relationships within this system are straightforward due to its single-component nature.
-
-*   **`add_two_numbers` function and `logging` module**: The `add_two_numbers` function directly interacts with Python's standard `logging` module to record its operational flow. It constructs log message prefixes based on the active correlation ID.
-*   **`add_two_numbers` function and `correlation_ID`**: The function either uses an explicitly passed `corrID` argument or falls back to the global `correlation_ID` for logging purposes.
-
-```mermaid
-graph TD
-    A[User/Calling System] --> B[add_two_numbers(num1, num2, corrID)];
-    B --> C{Input Conversion (int())};
-    C -- Success --> D[Addition];
-    C -- Failure --> E[Error Handling (Missing)];
-    D --> F[Return Result];
-    B --> G[Logging Module];
-    G -- Uses --> H[Global correlation_ID];
-    B -- Falls back to --> H;
-
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style B fill:#bbf,stroke:#333,stroke-width:2px
-    style G fill:#ccf,stroke:#333,stroke-width:2px
-    style H fill:#fcc,stroke:#333,stroke-width:2px
-    style E fill:#fcc,stroke:#f00,stroke-width:2px
+```bash
+git clone git@github.com:your-org/core-number-addition-service.git
+cd core-number-addition-service
 ```
 
-## 4. Security Considerations
+### Install Dependencies
+The Core Number Addition Service currently has no external Python dependencies beyond the standard library. If future additions require packages, `pip` would be used for installation.
 
-The current implementation has a critical security vulnerability:
-
-*   **Denial of Service (DoS) due to unhandled input type error**: The `add_two_numbers` function attempts to convert inputs (`num1`, `num2`) to integers directly using `int()`. If non-numeric values are passed, this operation will raise a `ValueError`, causing the application to crash. This lack of robust input validation and error handling allows an attacker to cause a Denial of Service by providing malformed input.
-
-## 5. Code Quality Notes
-
-Several areas for improvement have been identified concerning code quality:
-
-*   **Missing Error Handling for Conversions (Critical)**: The code lacks `try-except` blocks around `int()` conversions, leading to crashes on invalid input, contradicting its own docstring.
-*   **Misleading Docstring (Moderate)**: The docstring for `add_two_numbers` inaccurately claims graceful handling of conversion errors.
-*   **Inconsistent Naming Conventions (Moderate)**: Inconsistent casing (`correlation_ID` vs. `corrID`) is used for correlation identifiers.
-*   **Unused Variable (`error_prefix`) (Moderate)**: A variable intended for error logging is defined but never utilized.
-*   **Reliance on Global Mutable State (Moderate)**: The default `correlation_ID` is a global variable, which can complicate testing and introduce hidden dependencies.
-*   **Hardcoded Default `correlation_ID` (Minor)**: The default correlation ID is a static string, limiting its utility for tracing individual requests or operations.
-
-## 6. Architectural Patterns
-
-The system currently exhibits the following architectural patterns:
-
-*   **Utility Function**: The `add_two_numbers` function is a self-contained unit performing a single, specific task, characteristic of a utility function designed for reusability.
-*   **Logging Pattern**: Basic implementation of logging is present, intended for informational output and basic tracing using correlation IDs.
-
-## 7. Recommended Improvements
-
-Based on the analysis, the following architectural and code quality improvements are recommended:
-
-### A. Core Reliability and Robustness
-
-1.  **Implement Robust Error Handling**:
-    *   Introduce `try-except ValueError` blocks around all `int()` conversion attempts within `add_two_numbers`.
-    *   Gracefully handle conversion failures by logging an error using the `error_prefix` (which should then be properly used) and returning `None` or raising a custom, more specific exception to clearly indicate failure.
-    *   **Impact**: Prevents application crashes, enhances system stability, and fulfills the promise of "graceful handling" in the docstring.
-
-2.  **Update Documentation**:
-    *   Correct the docstring of `add_two_numbers` to accurately reflect how conversion failures are managed after the above changes are implemented.
-    *   Remove or update misleading comments regarding error handling that are not reflected in the code.
-
-### B. Decoupling and Maintainability
-
-1.  **Decouple Correlation ID Management**:
-    *   **Recommendation**: Move away from a global mutable `correlation_ID`.
-    *   **Options**:
-        *   Pass `correlation_ID` explicitly as a required argument (if it's always available).
-        *   Utilize `threading.local()` for thread-safe context in multi-threaded environments.
-        *   Employ `logging.LoggerAdapter` to inject contextual information (like correlation IDs) into log records transparently.
-        *   For asynchronous applications, explore Python's `contextvars` module for managing contextual information.
-    *   **Impact**: Improves testability, reduces hidden dependencies, and supports better traceability in concurrent operations.
-
-2.  **Separate Logging Format Logic**:
-    *   **Recommendation**: Decouple the construction of `info_prefix` and `error_prefix` from the business logic within `add_two_numbers`.
-    *   **Method**: Configure a custom `logging.Formatter` to include the correlation ID in all log messages. Alternatively, use a `logging.LoggerAdapter` to prepend the correlation ID to messages before they reach the handlers.
-    *   **Impact**: Promotes separation of concerns, makes logging configuration more flexible and consistent across the application, and simplifies the core function's logic.
-
-### C. Further Architectural Enhancements
-
-1.  **Dedicated Input Validation Layer**:
-    *   For larger systems, consider creating a dedicated utility function or module for input validation. This would centralize input checks (e.g., `is_numeric`, `can_convert_to_int`) and separate them from the core arithmetic logic.
-    *   **Impact**: Improves code organization, reusability of validation logic, and clarity of the core function.
-
-2.  **Centralized Logging Configuration**:
-    *   For applications beyond a single script, implement a centralized logging configuration (e.g., in a `config.py` file or a dedicated `logging_config.py` module). This would define formatters, handlers, and log levels uniformly across the codebase.
-    *   **Impact**: Simplifies logging management, ensures consistency, and allows for easier adjustments to logging behavior.
-
-By addressing these recommendations, the Core Number Addition Service can evolve into a more robust, maintainable, and architecturally sound component suitable for integration into complex systems.
+```bash
+# Example if future dependencies are introduced (e.g., for testing):
+# pip install -r requirements.txt
 ```
+
+---
+
+## 3. Environment Configuration
+
+> **⛔ SECURITY WARNING & Architectural Note**
+> The `correlation_ID` within `addNums.py` is currently hardcoded as a global variable. For production environments or complex systems, dynamic correlation ID management (e.g., via `contextvars` or `logging.LoggerAdapter`) is highly recommended to avoid global mutable state and enhance traceability.
+>
+> **Secrets**: The Core Number Addition Service does not use external secrets or `.env` files.
+
+---
+
+## 4. Running the Application
+
+The Core Number Addition Service is a Python module. You can execute its core function directly from a Python interpreter or import it into another script.
+
+### Executing the `add_two_numbers` function
+```bash
+# Directly from the command line
+python3 -c "from addNums import add_two_numbers; print(add_two_numbers(5, 3))"
+
+# Example of importing into another Python script (e.g., main.py)
+# from addNums import add_two_numbers
+#
+# # Call the function with various inputs
+# print(f"Sum of 10 and 20: {add_two_numbers(10, 20)}")
+# print(f"Sum of '5' and '7': {add_two_numbers('5', '7')}")
+#
+# # Test with a correlation ID
+# print(f"Sum with corrID: {add_two_numbers(1, 2, 'my-request-123')}")
+```
+
+> [!WARNING]
+> **Critical DoS Vulnerability (Input Validation)**
+> As extensively identified in the `ARCHITECTURE.md` and `TECHNICAL_DESIGN_DOCUMENT.md`, the `add_two_numbers` function currently lacks robust error handling for non-numeric inputs. If you call it with values that cannot be converted to integers (e.g., `add_two_numbers("hello", 5)`), the script will crash with a `ValueError`. This is a known critical issue and a high-priority fix is recommended to prevent Denial of Service.
+
+---
+
+## 5. Testing & Quality Assurance
+
+We advocate for rigorous testing to ensure the reliability and correctness of our code. Please refer to the [Test Automation Guide](Test%20Automation%20Guide.md) for detailed protocols, including how to set up and run tests.
+
+### Run Unit Tests
+We recommend and use `pytest` for Python unit tests.
+
+```bash
+# Install pytest if you don't have it already
+# pip install pytest
+
+# Run all unit tests for the addNums module (assuming 'tests' directory exists)
+pytest tests/unit/test_addNums.py
+```
+*(Note: As of the current codebase, the `tests` directory and `test_addNums.py` may not yet exist but are strongly recommended to be created as per the [Test Automation Guide](Test%20Automation%20Guide.md).)*
+
+### Linting & Formatting
+No automated linting or formatting tools (like `ruff` or `black`) are currently explicitly configured for this Python script. Developers are encouraged to adhere to [PEP 8](https://peps.python.org/pep-0008/) style guidelines and use IDE integrations (e.g., VS Code Python extension's linting features).
+
+---
+
+## 6. Workflow & Branching
+
+We follow a **Gitflow** strategy to manage our codebase. Please refer to the [Branching Strategy](Branching%20Strategy.md) document for detailed naming conventions and workflow steps.
+
+*   **Feature Work:** Branch off `develop` (`feature/my-feature`).
+*   **Hotfixes:** Branch off `main` (`hotfix/critical-bug`).
+*   **Pull Requests:** Must pass any configured CI checks (if applicable) and receive at least one peer review approval before merging.
+
+---
+
+## 7. Troubleshooting
+
+**Common Issues:**
+
+*   **`python3: command not found`**: Ensure Python 3.x is installed on your system and its executable is correctly configured in your system's `$PATH` environment variable.
+*   **`ModuleNotFoundError: No module named 'addNums'`**: This typically means the Python interpreter cannot find the `addNums.py` file. Ensure you are running the Python command from the directory containing `addNums.py` or that the directory is correctly added to your Python path.
+*   **`ValueError: invalid literal for int() with base 10: '...'`**: This error occurs when you provide non-numeric input to the `add_two_numbers` function. This is a known critical issue (Denial of Service vulnerability) that requires a code fix for graceful error handling.
+
+---
+
+*Need help? Reach out to the **Team Lead** or a designated **Python Expert** on your team via your usual communication channels.*

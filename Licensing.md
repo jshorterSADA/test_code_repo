@@ -1,4 +1,3 @@
-```markdown
 # Software Licensing & Intellectual Property Standards
 
 **Effective Date:** 2023-11-20
@@ -96,4 +95,3 @@ If you wish to open-source a specific module or present a technical case study a
 ---
 
 *Disclaimer: This document is a summary of internal engineering standards and does not constitute a full legal contract. Refer to your Master Services Agreement (MSA) or Employment Contract for full legal terms.*
-```

@@ -61,13 +61,14 @@ Configuration for the `addNums.py` script is currently hardcoded within the scri
 Not Applicable.
 
 ### Secret Management
-Not Applicable. Sensitive data (like API keys) are not managed through a secret manager service. The `correlation_ID` is hardcoded directly in the script, as noted in the `ARCHITECTURE.md` as a concern regarding reliance on global mutable state and hardcoded defaults.
+
+Not Applicable. Sensitive data (like API keys) are not managed through a secret manager service. The `correlation_ID` is hardcoded directly in the script (as noted in the `ARCHITECTURE.md` as a concern regarding reliance on global mutable state and hardcoded defaults).
 
 -----
 
 ## 6. IAM & Security Policies
 
-Not Applicable. As a local script, IAM (Identity and Access Management) and cloud-specific security policies are not relevant. Security considerations for this codebase primarily focus on application-level issues such as input validation to prevent Denial of Service, as detailed in the `ARCHITECTURE.md` document.
+Not Applicable. As a local script, IAM (Identity and Access Management) and cloud-specific security policies are not relevant. Security considerations for this codebase primarily focus on application-level issues such as input validation to prevent Denial of Service, as detailed in the `ARCHITECTURE.md` document and the security analysis.
 
 ### Service Accounts (SA)
 Not Applicable.

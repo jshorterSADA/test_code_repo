@@ -1,7 +1,8 @@
-```markdown
-# ARCHITECTURE.md: Core Number Addition Service
+# ARCHITECTURE.md: Core Number Addition Service - Architectural Diagrams
 
-This document provides a high-level overview of the architecture of the Core Number Addition Service, focusing on its context, major components, and how they interact. It utilizes C4 model-inspired diagrams to illustrate the system's structure and behavior.
+This document visually represents the architecture of the Core Number Addition Service, focusing on its context, major components, and interactions. It utilizes C4 model-inspired diagrams to illustrate the system's structure and behavior, complemented by brief explanations and references to key architectural insights identified during analysis.
+
+For a comprehensive written overview, including detailed security considerations and recommended improvements, please refer to the `TECHNICAL_DESIGN_DOCUMENT.md`.
 
 ## 1. System Context (C4 Level 1)
 
@@ -78,6 +79,7 @@ The core of the service is the `add_two_numbers` function (A). It first attempts
 *   **Critical DoS Vulnerability**: The `Input Conversion` component (B) lacks `try-except` blocks, meaning non-numeric input will cause the script to crash, leading to a Denial of Service.
 *   **Tight Coupling of Logging**: The `Logging Integration Logic` (D) is embedded within the function, manually creating prefixes. This couples logging format concerns with business logic.
 *   **Global State Dependency**: The `Global correlation_ID` (E) is a hardcoded, mutable global variable, introducing hidden dependencies and limiting traceability.
+*   For more details, see `TECHNICAL_DESIGN_DOCUMENT.md` section 5.
 
 ## 4. Data Flow / Sequence Diagram
 
@@ -153,4 +155,3 @@ A `Client / User` initiates the execution of the `addNums.py Script` on a `Gener
 
 ---
 *Note: These diagrams are generated using [Mermaid](https://mermaid.js.org/). You can edit the code blocks directly to update the architecture.*
-```

@@ -1,4 +1,3 @@
-```markdown
 # Version Control & Branching Strategy
 
 This document outlines the branching strategy used by the engineering team. We utilize a strict **Gitflow** workflow to ensure stability in production (`main`) while maintaining a high velocity of feature development (`develop`).
@@ -138,5 +137,4 @@ We enforce specific checks locally before you can commit or push.
 
 ```bash
 git commit -m "wip: saving work" --no-verify
-```
 ```

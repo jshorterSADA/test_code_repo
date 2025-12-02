@@ -31,7 +31,7 @@ As the Core Number Addition Service is a standalone Python script, a formal test
 
 ## 3. Directory Structure
 
-While no dedicated test directory exists currently, for a Python project, tests should be located either in a dedicated `tests/` directory at the project root or co-located with the module they test (e.g., `test_addNums.py` alongside `addNums.py`).
+While no dedicated test directory exists currently, for a Python project, tests should be located either in a dedicated `tests/` directory at the project root or co-located with the module they test (e.g., `test_addNums.py` alongside `addNums.py`). This addresses the `quality.moderate` insight regarding the lack of a defined test directory.
 
 ```text
 /project-root
@@ -49,12 +49,12 @@ While no dedicated test directory exists currently, for a Python project, tests 
 
 Focus on the `add_two_numbers` function's pure logic, including valid inputs, edge cases, and, critically, error handling for invalid inputs as identified in the code analysis.
 
-The current `add_two_numbers` function has a critical security vulnerability and quality issue related to unhandled `ValueError` when non-numeric inputs are provided. Unit tests should be designed to explicitly cover these failure scenarios.
+The current `add_two_numbers` function has a critical security vulnerability and quality issue related to unhandled `ValueError` when non-numeric inputs are provided (`security.critical`, `quality.critical`). Unit tests should be designed to explicitly cover these failure scenarios.
 
 ```python
 # tests/unit/test_addNums.py
 import pytest
-from addNums import add_two_numbers
+from addNums import add_two_numbers # Assuming addNums.py is importable
 
 # Mock the logging for cleaner test output, if needed, or assert log calls
 # from unittest.mock import patch
@@ -71,11 +71,12 @@ def test_add_two_numbers_valid_string_integers():
     assert add_two_numbers("-10", "5", corrID="test-id-5") == -5
 
 # --- Addressing critical issues from code analysis ---
-def test_add_two_numbers_non_numeric_input_raises_error():
+def test_add_two_numbers_non_numeric_input_raises_value_error():
     """
     Test that non-numeric inputs raise a ValueError, as per current (vulnerable) implementation.
     This test verifies the *current behavior* (crash) which needs to be fixed.
-    After fixing, this test would change to assert graceful handling or a custom exception.
+    After fixing the DoS vulnerability, this test would need to be updated
+    to assert graceful handling or a custom exception.
     """
     with pytest.raises(ValueError) as excinfo:
         add_two_numbers("a", 2, corrID="test-id-6")
@@ -85,7 +86,7 @@ def test_add_two_numbers_non_numeric_input_raises_error():
         add_two_numbers(1, "b", corrID="test-id-7")
     assert "invalid literal for int()" in str(excinfo.value)
 
-def test_add_two_numbers_mixed_non_numeric_input_raises_error():
+def test_add_two_numbers_mixed_non_numeric_input_raises_value_error():
     """Test mixed valid/invalid inputs."""
     with pytest.raises(ValueError):
         add_two_numbers(1, "invalid", corrID="test-id-8")
@@ -93,9 +94,12 @@ def test_add_two_numbers_mixed_non_numeric_input_raises_error():
 # --- Example of how a fixed version would be tested ---
 # Assuming add_two_numbers is updated to handle errors gracefully,
 # e.g., by returning None or raising a custom exception.
+# This part is commented out as it represents a future state.
+
 # def test_add_two_numbers_non_numeric_input_returns_none_after_fix():
 #     """Test that non-numeric inputs return None after error handling fix."""
 #     # This test would only pass AFTER the DoS vulnerability is fixed.
+#     # (e.g., by implementing try-except blocks as recommended in ARCHITECTURE.md)
 #     assert add_two_numbers("a", 2, corrID="test-id-fixed") is None
 #     # Or if a custom exception is raised
 #     # with pytest.raises(InvalidInputError):
@@ -118,7 +122,7 @@ For simple unit tests of the `add_two_numbers` function, test data will typicall
 
 If the service were to expand to include more complex data types or external dependencies:
 
-*   **Factories:** For generating complex test objects.
+*   **Factories:** For generating complex test objects (e.g., `Faker` for Python).
 *   **Seeding:** For integration tests involving a database (N/A here).
 *   **Mocking:** Use `unittest.mock` for isolating units that interact with external systems (e.g., if the `add_two_numbers` function were to fetch numbers from an external API).
 
