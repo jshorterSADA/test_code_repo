@@ -1,9 +1,10 @@
+
 # Software Licensing & Intellectual Property Standards
 
-**Effective Date:** May 15, 2024
+**Effective Date:** 2023-10-27
 **Owner:** Legal & Engineering Leadership
 
-This document defines the strict protocols regarding the creation, usage, and protection of software assets within this repository. It serves as a binding guideline for all employees, contractors, and third-party vendors contributing to Python Core Utilities.
+This document defines the strict protocols regarding the creation, usage, and protection of software assets within this repository. It serves as a binding guideline for all employees, contractors, and third-party vendors contributing to the Insight Core Services repository.
 
 ---
 
@@ -21,10 +22,7 @@ This includes, but is not limited to:
 * Internal API schemas and data structures.
 * Infrastructure as Code (Terraform/Helm) configurations.
 
-
-
-[Image of intellectual property protection concept]
-
+![Intellectual Property Protection](https://insight.com/assets/images/ip_protection_concept.png)
 
 ---
 
@@ -68,8 +66,8 @@ You may freely add dependencies that use the following licenses:
 ## 4. Acceptable Use Guidelines
 
 ### ✅ You Can:
-* Use generic coding patterns (e.g., standard Python functions, logging configurations) in future projects, provided no proprietary business logic is included.
-* Contribute bug fixes back to *external* Open Source libraries used in the project (e.g., fixing a typo in a logging library), provided no Insight IP is revealed in the PR.
+* Use generic coding patterns (e.g., standard React hooks, factory patterns) in future projects, provided no proprietary business logic is included.
+* Contribute bug fixes back to *external* Open Source libraries used in the project (e.g., fixing a typo in a React library), provided no Insight IP is revealed in the PR.
 
 ### ❌ You Cannot:
 * **Copy/Paste:** Do not copy code blocks from this repo into personal GitHub Gists or StackOverflow questions.

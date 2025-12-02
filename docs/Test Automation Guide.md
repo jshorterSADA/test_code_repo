@@ -1,15 +1,16 @@
 # Test Automation & Quality Assurance
 
-This guide defines the tools, strategies, and standards for automated testing within the **Python Calculation Module** repository. Our goal is to enable high-velocity deployments with high confidence.
+This guide defines the tools, strategies, and standards for automated testing within the Python Number Operations Utility repository. Our goal is to enable high-velocity deployments with high confidence.
 
 ## 1. The Testing Philosophy
 
-We follow the **Testing Pyramid** approach. We prioritize fast, cheap unit tests at the base and reserve more comprehensive functional tests for critical module behaviors.
+We follow the **Testing Pyramid** approach. We prioritize fast, cheap unit tests at the base and reserve expensive, slow End-to-End (E2E) tests for critical user journeys.
 
 | Level | Scope | Tooling | Target Coverage |
 | :--- | :--- | :--- | :--- |
-| **Unit** | Individual functions/methods, pure logic | Pytest | > 80% |
-| **Functional** | Module-level behavior, ensuring side effects (e.g., logging) | Pytest, `unittest.mock` | Critical Paths |
+| **Unit** | Individual functions/methods (e.g., `add_two_numbers`) | `pytest` | `> 90%` |
+| **Integration** | Interactions between core modules or with system components (e.g., logging). For `addNums.py`, this scope is minimal. | `pytest` (potentially with `pytest-mock`) | `Minimal / N/A for addNums.py` |
+| **E2E** | Full application flows | `N/A` | `N/A` |
 
 ---
 
@@ -17,113 +18,95 @@ We follow the **Testing Pyramid** approach. We prioritize fast, cheap unit tests
 
 We utilize a standard Python-based testing stack to reduce context switching.
 
-*   **Runner & Assertions:** [Pytest](https://docs.pytest.org/en/stable/)
-*   **Mocking:** `unittest.mock` (standard library) or `pytest-mock`
+*   **Runner & Assertions:** `pytest`
 
 ---
 
 ## 3. Directory Structure
 
-Tests should be located in a dedicated `tests/` directory within the project root.
+Tests should be located close to the code they test (colocation) for unit tests.
 
 ```text
 /project-root
   addNums.py
-  /tests
-    test_addNums.py        <-- Unit & Functional Tests
+  test_addNums.py      <-- Unit Tests (Colocated)
 ```
 
----
+-----
 
 ## 4. Writing Tests
 
-### Unit Testing (Logic)
+### Unit Testing (Python Functions)
 
-Focus on pure logic, input validation, and expected outputs of individual functions.
+Focus on pure logic and function behavior. Ensure the function handles various inputs, including valid numbers, string representations of numbers, and invalid types that should raise errors. Also, verify expected logging output.
 
 ```python
-# tests/test_addNums.py
+# test_addNums.py
 import pytest
-from addNums import add_two_numbers
-
-def test_add_two_numbers_positive_integers():
-    """Test with two positive integer inputs."""
-    assert add_two_numbers(1, 2, corrID="test-corr-id") == 3
-
-def test_add_two_numbers_string_integers():
-    """Test with string representations of integers."""
-    assert add_two_numbers("10", "20", corrID="test-corr-id") == 30
-
-def test_add_two_numbers_mixed_types():
-    """Test with mixed integer and string-integer inputs."""
-    assert add_two_numbers(5, "5", corrID="test-corr-id") == 10
-
-def test_add_two_numbers_invalid_input_type():
-    """Test that invalid non-numeric inputs raise a ValueError."""
-    with pytest.raises(ValueError):
-        add_two_numbers("invalid", 2, corrID="test-corr-id")
-
-def test_add_two_numbers_none_input():
-    """Test that None inputs raise a TypeError."""
-    with pytest.raises(TypeError):
-        add_two_numbers(None, 2, corrID="test-corr-id")
-```
-
-### Functional Testing (Logging)
-
-Ensure that module-level behaviors, such as logging, function as expected. This involves capturing log output and asserting its content.
-
-```python
-# tests/test_addNums.py (continued)
 import logging
-import pytest
-from addNums import add_two_numbers
+from addNums import add_two_numbers, correlation_ID
 
-def test_add_two_numbers_logs_info_messages(caplog):
-    """Test that add_two_numbers logs appropriate info messages."""
-    caplog.set_level(logging.INFO)
-    corr_id = "func-test-corr-id"
-    add_two_numbers(1, 2, corrID=corr_id)
+# Fixture to capture logs for assertion
+@pytest.fixture
+def caplog_setup(caplog):
+    caplog.set_level(logging.INFO, logger='addNums') # Capture INFO logs from addNums module
+    yield caplog
 
-    # Check for specific log messages
-    assert len(caplog.records) == 3
-    assert f'{corr_id} - Function `add_two_numbers` called with num1=1, num2=2.' in caplog.text
-    assert f'{corr_id} - Attempting to convert inputs to integers.' in caplog.text
-    assert f'{corr_id} - Successfully added 1 and 2. Result: 3' in caplog.text
+def test_add_two_numbers_valid_integers(caplog_setup):
+    """Test with valid integer inputs."""
+    result = add_two_numbers(1, 2)
+    assert result == 3
+    assert f'{correlation_ID} - Successfully added 1 and 2. Result: 3' in caplog_setup.text
 
-def test_add_two_numbers_logs_error_on_conversion_failure(caplog):
-    """Test that add_two_numbers logs an error on input conversion failure."""
-    caplog.set_level(logging.ERROR) # Set level to ERROR to capture potential errors
-    corr_id = "error-test-corr-id"
-    
-    # We expect a ValueError, but also check the logs for its handling if any specific error logging was implemented
-    try:
-        add_two_numbers("a", 2, corrID=corr_id)
-    except ValueError:
-        pass # Expected exception
+def test_add_two_numbers_string_integers(caplog_setup):
+    """Test with valid string integer inputs."""
+    result = add_two_numbers("10", "20")
+    assert result == 30
+    assert f'{correlation_ID} - Successfully added 10 and 20. Result: 30' in caplog_setup.text
 
-    # In this specific codebase, ValueError is raised and not explicitly logged as an error
-    # If it were, we'd assert on error log messages here.
-    # The current implementation only logs INFO messages before the exception.
-    assert len(caplog.records) == 0 # No ERROR level logs expected before the ValueError is raised
+def test_add_two_numbers_invalid_input_raises_value_error(caplog_setup):
+    """Test with invalid input that cannot be converted to int, expecting ValueError."""
+    with pytest.raises(ValueError) as excinfo:
+        add_two_numbers("a", 2)
+    assert "invalid literal for int()" in str(excinfo.value)
+    # Verify that expected info logs up to the point of failure are present
+    assert f'{correlation_ID} - Function `add_two_numbers` called with num1=a, num2=2.' in caplog_setup.text
+    assert f'{correlation_ID} - Attempting to convert inputs to integers.' in caplog_setup.text
+
+def test_add_two_numbers_custom_corr_id(caplog_setup):
+    """Test that a custom correlation ID is used in logs when provided."""
+    custom_id = "test-123"
+    result = add_two_numbers(5, 7, corrID=custom_id)
+    assert result == 12
+    assert f'{custom_id} - Successfully added 5 and 7. Result: 12' in caplog_setup.text
+    assert f'{custom_id} - Function `add_two_numbers` called with num1=5, num2=7.' in caplog_setup.text
+
 ```
 
----
+### Integration Testing (Python Modules)
+
+For this specific module (`addNums.py`), typical integration testing of external services or databases is not applicable as it is a pure function. However, if this module were part of a larger system, integration tests would focus on interactions between `addNums.py` and other internal modules or mock external dependencies (e.g., ensuring data flows correctly through multiple processing steps).
+
+### End-to-End (N/A)
+
+End-to-End testing is not applicable for this single utility module.
+
+-----
 
 ## 5. Test Data Management
 
-*   **Factories:** Use factories (e.g., [Faker](https://faker.readthedocs.io/en/master/)) to generate random data rather than hardcoding strings, especially for more complex data structures. For this simple module, direct values are sufficient.
-*   **Seeding:** For modules interacting with databases or external systems, each test suite should spin up a fresh sandbox and tear it down after. (Not directly applicable to this simple calculation module).
-*   **Mocking:** Never hit real external APIs or services in unit tests. Use `unittest.mock.patch` or `pytest-mock` to isolate the code under test.
+*   **Parametrization:** For tests requiring varied inputs, utilize `pytest.mark.parametrize` to cover multiple scenarios efficiently within a single test function.
+*   **Seeding:** Not applicable for this pure function module.
+*   **Mocking:** If `add_two_numbers` were to interact with external systems (e.g., a database or API), `unittest.mock` or `pytest-mock` would be used to isolate the function under test and simulate external dependencies.
 
----
+-----
 
 ## 6. CI/CD Integration
 
-Tests are executed automatically via GitHub Actions.
+Tests are executed automatically via GitHub Actions (or similar CI/CD pipeline).
 
-1.  **Pull Request:** Runs Lint + Unit & Functional Tests. (Must pass to merge).
-2.  **Nightly Build:** Runs comprehensive unit/functional suite.
+1.  **Pull Request:** Runs Lint + Unit Tests (`pytest`). (Must pass to merge).
+2.  **Nightly Build:** Runs more extensive suites if they existed (e.g., performance tests), but for this module, it would primarily be unit tests.
 
 **Handling Flaky Tests:**
 If a test fails randomly (flaky):
