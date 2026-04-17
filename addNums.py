@@ -1,8 +1,9 @@
 
 import logging
 
-# Configure logging to match the desired output format for error and info messages.
-# The 'message' format ensures that correlation IDs are printed directly as specified.
+# Configure logging to match the desired output format for error and info
+# messages. The 'message' format ensures that correlation IDs are printed
+# directly as specified.
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 correlation_ID ="41131d34-334c-488a-bce2-a7642b27cf35"
@@ -24,14 +25,17 @@ def add_two_numbers(num1, num2, corrID=None):
     logging.info(f'{info_prefix}Function `add_two_numbers` called with num1={num1}, num2={num2}.')
     logging.info(f'{info_prefix}Attempting to convert inputs to integers.')
 
-
+    try:
         # The original file had these lines incorrectly indented and lacked error handling.
         # They are now correctly indented within a try block to catch conversion errors.
         num1_int = int(num1)
         num2_int = int(num2)
-    
-        # Calculate the sum
-        result = num1_int + num2_int
-        logging.info(f'{info_prefix}Successfully added {num1_int} and {num2_int}. Result: {result}')
-        return result
-   
+    except (ValueError, TypeError) as e:
+        # Log the error and return None to indicate failure to convert and perform addition gracefully.
+        logging.error(f'{error_prefix}Failed to convert inputs to integers. num1={num1}, num2={num2}. Error: {e}')
+        return None
+
+    # Calculate the sum
+    result = num1_int + num2_int
+    logging.info(f'{info_prefix}Successfully added {num1_int} and {num2_int}. Result: {result}')
+    return result
